@@ -160,3 +160,8 @@
 .requests-workspace:has(#utility-readings:target) .request-section-nav>a[href="#utility-readings"],
 .requests-workspace:has(#payment-proofs:target) .request-section-nav>a[href="#payment-proofs"],
 .requests-workspace:has(#workspace-settings:target) .request-section-nav>a[href="#workspace-settings"] {color:var(--rq-accent);border-bottom:2px solid var(--rq-accent);}
+
+.rental-handoff { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 24px; border-top:1px solid var(--line); }
+.rental-handoff strong { font-size:14px; }
+.rental-handoff p { margin:8px 0 0; font-size:12px; color:var(--muted); }
+@media(max-width:650px) { .rental-handoff { align-items:flex-start; flex-direction:column; padding:18px 16px; gap:14px; } }

@@ -1,0 +1,14 @@
+<section class="customer-payment-history" aria-labelledby="payment-history-title">
+  <div class="section-heading"><h2 id="payment-history-title">Payment history</h2><span class="count">Confirmed receipts</span></div>
+  <p class="helper">Includes cash, bank transfers, and QR payments confirmed by management. Pending proofs are not payments yet.</p>
+  {% for allocation, payment, bill in payments %}
+    <article class="card payment-history-entry">
+      <div class="row"><strong>${{ '%.2f'|format(allocation.allocated_amount) }}</strong><span class="status">Confirmed</span></div>
+      <p class="payment-history-date">{{ payment.payment_date.strftime('%d %b %Y') if payment.payment_date else 'Date unavailable' }} · {{ payment.payment_method }}</p>
+      <a href="{{ url_for('customer.invoice',invoice_id=bill.id) }}">{{ bill.billing_period.strftime('%B %Y') }} · {{ bill.invoice_no }} →</a>
+      <dl><div><dt>Receipt</dt><dd>{{ payment.payment_no }}</dd></div>{% if payment.reference_no %}<div><dt>Reference</dt><dd>{{ payment.reference_no }}</dd></div>{% endif %}</dl>
+    </article>
+  {% else %}
+    <p class="empty">No confirmed payments yet. Receipts appear here after management records or confirms your payment.</p>
+  {% endfor %}
+</section>

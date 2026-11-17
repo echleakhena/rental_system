@@ -24,11 +24,19 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from .customer_finances import invoice_breakdowns, payment_history
 from .customer_models import CustomerAccount, PaymentProof
 from .models import MODELS as M
 from .models import db
 from .photos import ROOM_PHOTO_CATEGORIES, process_photo
-from .services import audit, invoice_reading_details, money, pay_invoice
+from .services import (
+    approve_reading,
+    audit,
+    invoice_reading_details,
+    money,
+    pay_invoice,
+    validate_reading_period,
+)
 from .web import can_manage, can_write, login_required, user
 
 customer_bp = Blueprint("customer", __name__)
@@ -495,6 +503,14 @@ def cancel_booking(booking_id):
 @customer_bp.get("/customer/rentals")
 @customer_required
 def rentals():
+    from .billing_workspace import period_bounds
+
+    try:
+        month, following = period_bounds(
+            request.args.get("period", date.today().strftime("%Y-%m"))
+        )
+    except ValueError as exc:
+        abort(400, str(exc))
     leases = leases_for(account())
     departed = set(
         db.session.scalars(
@@ -539,15 +555,84 @@ def rentals():
             M["meter_readings"].reading_date.desc(), M["meter_readings"].id.desc()
         )
     ).all()
+    pending_proofs = set(
+        db.session.scalars(
+            select(PaymentProof.invoice_id).where(
+                PaymentProof.invoice_id.in_([i.id for i in invoices]),
+                PaymentProof.status == "Pending",
+            )
+        )
+    )
+    upcoming = [
+        lease
+        for lease in leases
+        if lease.status == "Active" and lease.start_date > date.today()
+    ]
+    drafts = [lease for lease in leases if lease.status == "Draft"]
+    latest = {}
+    for reading in readings:
+        latest.setdefault(reading.meter_id, reading)
+    billed_current = {
+        i.contract_id
+        for i in invoices
+        if i.billing_period == date.today().replace(day=1)
+    }
+    breakdowns = invoice_breakdowns(invoices)
+    monthly_invoices = [
+        invoice for invoice in invoices if invoice.billing_period == month
+    ]
+    monthly = {
+        key: sum(
+            (breakdowns[invoice.id][key] for invoice in monthly_invoices), Decimal(0)
+        )
+        for key in ("rent", "water", "electricity", "other")
+    }
+    monthly.update(
+        total=sum(
+            (invoice.total_amount or 0 for invoice in monthly_invoices), Decimal(0)
+        ),
+        paid=sum(
+            (invoice.paid_amount or 0 for invoice in monthly_invoices), Decimal(0)
+        ),
+        due=sum((invoice.balance_due or 0 for invoice in monthly_invoices), Decimal(0)),
+    )
     return render_template(
         "customer/rentals.html",
         nav="rentals",
         leases=leases,
         current=current,
+        upcoming=upcoming,
+        drafts=drafts,
+        latest_readings=latest,
+        billed_current=billed_current,
+        pending_proofs=pending_proofs,
+        current_month_complete=bool(current)
+        and all(lease.id in billed_current for lease in current),
+        readings_awaiting_review=any(
+            reading.status == "Draft"
+            and reading.contract_id in {lease.id for lease in current}
+            for reading in readings
+        ),
         invoices=invoices,
         bookings=bookings,
         meters=meters,
         readings=readings,
+        selected_month=month,
+        monthly=monthly,
+        monthly_invoices=monthly_invoices,
+        bill_breakdowns=breakdowns,
+        outstanding=sum((invoice.balance_due or 0 for invoice in invoices), Decimal(0)),
+        payments=payment_history([invoice.id for invoice in invoices]),
+        scheduled_rent=sum(
+            (
+                lease.monthly_rent or 0
+                for lease in leases
+                if lease.status == "Active"
+                and lease.start_date < following
+                and lease.end_date >= month
+            ),
+            Decimal(0),
+        ),
     )
 
 
@@ -568,21 +653,7 @@ def submit_reading(lease_id):
         if not meter or meter.room_id != lease.room_id or meter.status != "Active":
             raise ValueError("Choose a meter belonging to your room.")
         reading_date = date.fromisoformat(request.form.get("reading_date", ""))
-        if not lease.start_date <= reading_date <= min(date.today(), lease.end_date):
-            raise ValueError(
-                "Choose a reading date within your current stay, up to today."
-            )
-        month = reading_date.replace(day=1)
-        if db.session.scalar(
-            select(M["invoices"].id).where(
-                M["invoices"].contract_id == lease.id,
-                M["invoices"].billing_period == month,
-                M["invoices"].status.notin_(["Draft", "Voided"]),
-            )
-        ):
-            raise ValueError(
-                "This month has already been billed. Contact management to correct a reading."
-            )
+        validate_reading_period(lease, reading_date)
         value = Decimal(request.form.get("current_reading", ""))
         if (
             not value.is_finite()
@@ -719,6 +790,13 @@ def invoice(invoice_id):
         proofs=proofs,
         reading_details=invoice_reading_details(items),
         qr=qr_setting(),
+        pending_payment=db.session.scalar(
+            select(PaymentProof.id).where(
+                PaymentProof.invoice_id == inv.id, PaymentProof.status == "Pending"
+            )
+        )
+        is not None,
+        payments=payment_history([inv.id]),
     )
 
 
@@ -844,9 +922,9 @@ def management():
                 audit(user().id, "reservations", booking, "Review")
             elif action == "approve_reading":
                 reading = db.session.scalar(
-                    select(M["meter_readings"])
-                    .where(M["meter_readings"].id == record_id)
-                    .with_for_update()
+                    select(M["meter_readings"]).where(
+                        M["meter_readings"].id == record_id
+                    )
                 )
                 if (
                     not reading
@@ -854,11 +932,7 @@ def management():
                     or reading.reading_type != "Customer"
                 ):
                     raise ValueError("This reading has already been reviewed.")
-                if reading.unit_rate is None or reading.unit_rate < 0:
-                    raise ValueError("Set a valid utility rate first.")
-                reading.status = "Approved"
-                reading.recorded_by = user().id
-                audit(user().id, "meter_readings", reading, "Approve")
+                approve_reading(reading, user().id)
             elif action in ("confirm_payment", "reject_payment"):
                 proof = db.session.scalar(
                     select(PaymentProof)
@@ -914,6 +988,22 @@ def management():
         .where(M["reservations"].status == "Pending")
         .order_by(M["reservations"].id.desc())
     ).all()
+    confirmed_bookings = db.session.scalars(
+        select(M["reservations"])
+        .where(M["reservations"].status == "Confirmed")
+        .order_by(M["reservations"].expected_move_in)
+    ).all()
+    booking_leases = {
+        lease.reservation_id: lease
+        for lease in db.session.scalars(
+            select(M["rental_contracts"]).where(
+                M["rental_contracts"].reservation_id.in_(
+                    [b.id for b in confirmed_bookings]
+                ),
+                M["rental_contracts"].status.in_(["Draft", "Active"]),
+            )
+        )
+    }
     readings = db.session.scalars(
         select(M["meter_readings"]).where(
             M["meter_readings"].reading_type == "Customer",
@@ -931,6 +1021,8 @@ def management():
     return render_template(
         "customer/management.html",
         bookings=bookings,
+        confirmed_bookings=confirmed_bookings,
+        booking_leases=booking_leases,
         readings=readings,
         proofs=proofs,
         accounts=accounts,

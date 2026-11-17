@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% from 'icons.html' import icon, field_icon %}
 {% block content %}
-  <div class="record-editor">
+  <div class="record-editor {{ 'room-record-editor' if table=='rooms' }}">
     <div class="editor-heading">
       <div class="editor-title">
         <span class="editor-symbol">{{ icon('edit' if editing else 'plus') }}</span>
         <div>
-          <h1>{{ ('Edit customer' if editing else 'Add customer') if table=='tenants' else ('Edit' if editing else 'New') ~ ' ' ~ titleize(table) ~ ' record' }}</h1>
+          <h1>{{ ('Edit customer' if editing else 'Add customer') if table=='tenants' else ('Edit room' if editing else 'Add room') if table=='rooms' else ('Edit' if editing else 'New') ~ ' ' ~ titleize(table) ~ ' record' }}</h1>
           <p>
             Fields marked <span class="required-mark">*</span> are required.
           </p>
@@ -18,7 +18,7 @@
     {% if table in ['contract_renewals', 'move_outs'] %}
       <p class="muted">Saving this draft records the request. It does not change the lease, room occupancy, or financial balances.</p>
     {% endif %}
-    <form method="post" class="panel form-grid record-form {{ 'customer-record-form' if table=='tenants' }}">
+    <form method="post" {% if table=='rooms' %}enctype="multipart/form-data"{% endif %} class="panel form-grid record-form {{ 'customer-record-form' if table=='tenants' }}">
       <input type="hidden" name="_csrf" value="{{ csrf_token }}">
       {% for f in fields %}
         {% set value = request.form.get(f.name,row[f.name] if row[f.name] is not none else '') %}
@@ -67,6 +67,14 @@
                {% if not editing or customer_password_required %}required{% endif %}>
         {% if editing and not customer_password_required %}<small>Leave blank to keep the current password.</small>{% elif table=='tenants' %}<small>Used with the phone number to sign in to the customer portal.</small>{% endif %}
       </label>
+    {% endif %}
+    {% if table=='rooms' %}
+      <section class="room-photo-editor" aria-labelledby="room-photos-heading">
+        <h2 id="room-photos-heading">Room photos</h2>
+        <p class="muted">Upload to replace, or select Remove. JPEG, PNG or WebP · up to 5 MB each.</p>
+        {% with room=row %}{% include '_room_photo_fields.html' %}{% endwith %}
+        <small class="muted">Photos save with the room details. Unchanged photos are kept.</small>
+      </section>
     {% endif %}
     <div class="form-footer">
       <button class="primary icon-action" type="submit">

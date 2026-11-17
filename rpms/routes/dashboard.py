@@ -70,6 +70,11 @@ def dashboard():
             MODELS["meter_readings"].reading_type == "Customer",
         )
     )
+    preparing_rentals = db.session.scalar(
+        select(func.count())
+        .select_from(MODELS["reservations"])
+        .where(MODELS["reservations"].status == "Confirmed")
+    )
     pending_payments = db.session.scalar(
         select(func.count())
         .select_from(PaymentProof)
@@ -82,6 +87,7 @@ def dashboard():
     return render_template(
         "dashboard.html",
         pending_bookings=pending_bookings,
+        preparing_rentals=preparing_rentals,
         pending_readings=pending_readings,
         pending_payments=pending_payments,
         status_counts=status_counts,

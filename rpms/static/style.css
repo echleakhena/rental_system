@@ -1773,3 +1773,74 @@ textarea {
     font-size: 21px;
   }
 }
+
+.room-photo-editor { grid-column: 1 / -1; min-width: 0; border-top: 1px solid var(--line); padding-top: 24px; }
+.room-photo-editor > p { margin: 10px 0; line-height: 1.7; font-size: 13px; }
+.room-photo-editor .room-photo-grid { margin: 20px 0; }
+.room-photo-editor .room-photo-slot { min-width: 0; }
+.room-photo-editor input[type=file] { width: 100%; max-width: 100%; font-size: 12px; }
+
+/* Compact room editor; other record forms keep their existing layout. */
+.room-record-editor .editor-heading { margin-bottom: 16px; }
+.app-shell .room-record-editor .record-form { padding: 18px; gap: 12px 16px; }
+.room-record-editor .room-photo-editor { padding-top: 16px; }
+.room-record-editor .room-photo-editor h2 { margin: 0; font-size: 16px; }
+.room-record-editor .room-photo-editor > p { margin: 6px 0 12px; font-size: 12px; }
+.room-record-editor .room-photo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 12px 0; }
+.room-record-editor .room-photo-slot h3 { margin: 0 0 7px; font-size: 13px; }
+.room-record-editor .room-photo-slot img,
+.room-record-editor .photo-placeholder { display: flex; height: 110px; aspect-ratio: auto; }
+.room-record-editor .room-photo-slot img { display: block; }
+.room-record-editor .photo-placeholder { font-size: 11px; }
+.room-record-editor .photo-placeholder .menu-icon { width: 18px; height: 18px; }
+.room-record-editor .room-photo-slot > label { margin-top: 7px; font-size: 11px; }
+.app-shell .room-record-editor input[type=file] { padding: 6px; min-height: 36px; font-size: 11px; }
+.app-shell .room-record-editor .photo-remove { min-height: 28px; margin-top: 4px; }
+.app-shell .room-record-editor .photo-remove input { padding: 0; min-height: 16px; margin: 0; }
+.room-record-editor .room-photo-editor > small { display: block; font-size: 11px; line-height: 1.5; }
+.app-shell .room-record-editor .form-footer { margin-top: 0; padding-top: 12px; }
+@media (min-width: 1100px) {
+  .app-shell .room-record-editor .record-form { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 850px) {
+  .room-record-editor .room-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+  .app-shell .room-record-editor .record-form { grid-template-columns: minmax(0, 1fr); padding: 14px; }
+  .room-record-editor .room-photo-slot img,
+  .room-record-editor .photo-placeholder { height: 90px; }
+  .room-record-editor .photo-placeholder { flex-direction: column; gap: 4px; }
+}
+
+/* Keep the room detail and photo controls within a compact workspace. */
+.room-details-compact > .heading { margin-bottom: 16px; gap: 16px; }
+.room-detail-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; }
+.room-detail-actions .record-actions { margin: 0; }
+.app-shell .room-details-compact > .panel { padding: 18px; margin-bottom: 16px; }
+.room-details-compact .room-facts { gap: 12px; }
+.room-details-compact .room-facts small { margin-bottom: 5px; font-size: 11px; }
+.room-details-compact .section-title { margin-bottom: 8px; }
+.room-details-compact .section-title h2 { font-size: 17px; }
+.room-details-compact .panel > p.muted { font-size: 12px; line-height: 1.6; }
+.room-details-compact .room-photo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0; }
+.room-details-compact .room-photo-slot h3 { margin: 0 0 7px; font-size: 13px; }
+.room-details-compact .room-photo-slot img,
+.room-details-compact .photo-placeholder { height: 130px; aspect-ratio: auto; }
+.room-details-compact .room-photo-slot img { display: block; }
+.room-details-compact .photo-placeholder { font-size: 12px; }
+.room-details-compact .room-photo-slot > label { margin-top: 7px; font-size: 11px; }
+.app-shell .room-details-compact input[type=file] { width: 100%; min-width: 0; min-height: 36px; padding: 6px; font-size: 11px; }
+.app-shell .room-details-compact .photo-remove { min-height: 28px; margin-top: 4px; }
+.app-shell .room-details-compact .photo-remove input { padding: 0; margin: 0; }
+.room-details-compact .form-footer { margin-top: 0; padding-top: 12px; }
+@media (max-width: 850px) {
+  .room-details-compact .room-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+  .room-details-compact > .heading { flex-direction: column; align-items: flex-start; }
+  .room-detail-actions { justify-content: flex-start; gap: 10px; }
+  .app-shell .room-details-compact > .panel { padding: 14px; }
+  .room-details-compact .room-photo-slot img,
+  .room-details-compact .photo-placeholder { height: 95px; }
+  .room-details-compact .photo-placeholder { flex-direction: column; gap: 4px; }
+}

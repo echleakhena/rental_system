@@ -56,10 +56,11 @@ def activate(contract, user):
         raise ValueError("Lease end must follow its start.")
     if not db.session.scalar(
         select(MODELS["contract_tenants"].id).where(
-            MODELS["contract_tenants"].contract_id == contract.id
+            MODELS["contract_tenants"].contract_id == contract.id,
+            MODELS["contract_tenants"].is_primary == True,
         )
     ):
-        raise ValueError("Link a tenant to this lease first.")
+        raise ValueError("Link a primary tenant to this lease first.")
     clash = db.session.scalar(
         select(MODELS["rental_contracts"].id).where(
             MODELS["rental_contracts"].room_id == room.id,
@@ -131,6 +132,28 @@ def issue_invoice(contract, period, user):
         raise ValueError(
             "Review draft utility readings for this month before issuing the invoice."
         )
+    expected = set(
+        db.session.scalars(
+            select(MODELS["utility_meters"].id).where(
+                MODELS["utility_meters"].room_id == contract.room_id,
+                MODELS["utility_meters"].status == "Active",
+            )
+        )
+    )
+    covered = set(
+        db.session.scalars(
+            select(MODELS["meter_readings"].meter_id).where(
+                MODELS["meter_readings"].contract_id == contract.id,
+                MODELS["meter_readings"].reading_date >= month,
+                MODELS["meter_readings"].reading_date < next_month,
+                MODELS["meter_readings"].status == "Approved",
+            )
+        )
+    )
+    if expected - covered:
+        raise ValueError(
+            "Enter this month's readings for every active room meter before issuing the invoice."
+        )
     rent = money(contract.monthly_rent)
     inv = MODELS["invoices"](
         invoice_no=number("INV"),
@@ -186,6 +209,48 @@ def issue_invoice(contract, period, user):
     inv.balance_due = inv.total_amount
     audit(user, "invoices", inv)
     return inv
+
+
+def validate_reading_period(lease, day):
+    """All staff and customer entry points protect the same rental/billed dates."""
+    if lease.status != "Active" or not lease.start_date <= day <= min(
+        date.today(), lease.end_date
+    ):
+        raise ValueError("Choose a reading date within an active rental, up to today.")
+    if db.session.scalar(
+        select(MODELS["invoices"].id).where(
+            MODELS["invoices"].contract_id == lease.id,
+            MODELS["invoices"].billing_period == day.replace(day=1),
+            MODELS["invoices"].status != "Voided",
+        )
+    ):
+        raise ValueError(
+            "This month has already been billed. Contact management to correct a reading."
+        )
+
+
+def approve_reading(reading, user):
+    """Review customer readings consistently from either staff workspace."""
+    lease = db.session.get(MODELS["rental_contracts"], reading.contract_id)
+    db.session.refresh(lease, with_for_update=True)
+    db.session.refresh(reading, with_for_update=True)
+    if reading.status != "Draft":
+        raise ValueError("Only draft readings can be approved.")
+    validate_reading_period(lease, reading.reading_date)
+    meter = db.session.get(MODELS["utility_meters"], reading.meter_id)
+    if not meter or meter.room_id != lease.room_id:
+        raise ValueError("Meter and rental must belong to the same room.")
+    if (
+        reading.current_reading < reading.previous_reading
+        or reading.unit_rate is None
+        or reading.unit_rate < 0
+    ):
+        raise ValueError("Correct the meter values or unit rate before approval.")
+    reading.usage_quantity = reading.current_reading - reading.previous_reading
+    reading.total_amount = money(reading.usage_quantity * reading.unit_rate)
+    reading.status = "Approved"
+    reading.recorded_by = user
+    audit(user, "meter_readings", reading, "Approve")
 
 
 def pay_invoice(invoice_id, amount, method, reference, user):

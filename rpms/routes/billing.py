@@ -7,9 +7,11 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from ..customer_models import PaymentProof
 from ..models import MODELS, db
 from ..services import (
     activate,
+    approve_reading,
     audit,
     invoice_reading_details,
     issue_invoice,
@@ -116,6 +118,11 @@ def invoice(record_id):
         bill_to=bill_to,
         items=items,
         reading_details=invoice_reading_details(items),
+        pending_proofs=db.session.scalars(
+            select(PaymentProof).where(
+                PaymentProof.invoice_id == inv.id, PaymentProof.status == "Pending"
+            )
+        ).all(),
     )
 
 
@@ -239,40 +246,11 @@ def billing_reading():
 def billing_approve_reading(record_id):
     if not can_manage("meter_readings"):
         abort(403)
-    from ..billing_workspace import month_is_billed
-
     reading = db.get_or_404(MODELS["meter_readings"], record_id)
     lease = db.get_or_404(MODELS["rental_contracts"], reading.contract_id)
     period = reading.reading_date.strftime("%Y-%m")
     try:
-        db.session.refresh(lease, with_for_update=True)
-        db.session.refresh(reading, with_for_update=True)
-        if lease.status != "Active" or reading.status != "Draft":
-            raise ValueError("Only draft readings for active rentals can be approved.")
-        if month_is_billed(lease.id, reading.reading_date.replace(day=1)):
-            raise ValueError("This month has already been invoiced.")
-        meter = db.session.get(MODELS["utility_meters"], reading.meter_id)
-        if (
-            not meter
-            or meter.room_id != lease.room_id
-            or not lease.start_date
-            <= reading.reading_date
-            <= min(date.today(), lease.end_date)
-        ):
-            raise ValueError(
-                "Check the meter, rental and reading date before approval."
-            )
-        if (
-            reading.current_reading < reading.previous_reading
-            or reading.unit_rate is None
-            or reading.unit_rate < 0
-        ):
-            raise ValueError("Correct the meter values or unit rate first.")
-        reading.usage_quantity = reading.current_reading - reading.previous_reading
-        reading.total_amount = money(reading.usage_quantity * reading.unit_rate)
-        reading.status = "Approved"
-        reading.recorded_by = user().id
-        audit(user().id, "meter_readings", reading, "Approve")
+        approve_reading(reading, user().id)
         db.session.commit()
         flash("Reading approved and included in the invoice estimate.", "success")
     except (ValueError, IntegrityError) as exc:
@@ -299,32 +277,10 @@ def billing_issue():
         from ..billing_workspace import month_is_billed, period_bounds
 
         db.session.refresh(lease, with_for_update=True)
-        month, following = period_bounds(period)
-        if lease.status != "Active":
-            raise ValueError("Invoices require an active rental.")
-        if not month_is_billed(lease.id, month):
-            expected = set(
-                db.session.scalars(
-                    select(MODELS["utility_meters"].id).where(
-                        MODELS["utility_meters"].room_id == lease.room_id,
-                        MODELS["utility_meters"].status == "Active",
-                    )
-                ).all()
-            )
-            covered = set(
-                db.session.scalars(
-                    select(MODELS["meter_readings"].meter_id).where(
-                        MODELS["meter_readings"].contract_id == lease.id,
-                        MODELS["meter_readings"].reading_date >= month,
-                        MODELS["meter_readings"].reading_date < following,
-                        MODELS["meter_readings"].status.in_(["Draft", "Approved"]),
-                    )
-                ).all()
-            )
-            if expected - covered:
-                raise ValueError(
-                    "Enter this month's readings for every active room meter before issuing the invoice."
-                )
+        month, _ = period_bounds(period)
+        existing = month_is_billed(lease.id, month)
+        if existing:
+            return redirect(url_for("main.invoice", record_id=existing.id))
         inv = issue_invoice(lease, period, user().id)
         db.session.commit()
         flash(

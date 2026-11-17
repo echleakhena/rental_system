@@ -1,0 +1,39 @@
+      <div class="room-photo-grid">
+        {% for photo in photos %}
+          {% set slot = loop.index0 %}
+          {% set category = photo_categories[slot] %}
+          <div class="room-photo-slot">
+            <h3>{{ category }}</h3>
+            {% if photo %}
+              <a href="{{ url_for('main.room_photo',record_id=room.id,slot=slot) }}"
+                 target="_blank"
+                 rel="noopener">
+                <img src="{{ url_for('main.room_photo',record_id=room.id,slot=slot) }}"
+                     alt="{{ category }} of room {{ room.room_number }}{{ ' (sample interior)' if photo.startswith('demo-') }}"
+                     loading="lazy">
+              </a>
+              {% if photo.startswith('demo-') %}
+                <small class="demo-photo-label">Sample photo · not the actual room</small>
+              {% endif %}
+            {% else %}
+              <div class="photo-placeholder">
+                {{ icon("room") }}<span>{{ category }} photo</span>
+              </div>
+            {% endif %}
+            {% if can_manage('rooms') %}
+              <label>
+                {{ category }} photo
+                <input type="file"
+                       name="photo_{{ slot }}"
+                       accept="image/jpeg,image/png,image/webp">
+              </label>
+              {% if photo %}
+                <label class="photo-remove">
+                  <input type="checkbox" name="remove_{{ slot }}" value="yes">
+                  Remove this photo
+                </label>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>

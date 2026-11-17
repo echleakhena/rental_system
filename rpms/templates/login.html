@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Sign in · RPMS{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{{ asset_url('login.css') }}">{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ asset_url('login.css') }}"><link rel="stylesheet" href="{{ asset_url('demo-login.css') }}"><script src="{{ asset_url('demo-login.js') }}" defer></script>{% endblock %}
 {% block content %}
 <section class="signin-shell" aria-label="Sign in to RPMS">
   <div class="signin-story">
@@ -17,6 +17,8 @@
       <div class="signin-kicker">YOUR WORKSPACE</div>
       <h2>Welcome back.</h2>
       <p class="signin-description">Sign in to manage your rental portfolio.</p>
+      {% set demo_role = 'administrator' %}
+      {% include '_demo_login.html' %}
       <form method="post" class="signin-form">
         <input type="hidden" name="_csrf" value="{{ csrf_token }}">
         <label for="login-email">Email address</label>
@@ -26,7 +28,7 @@
         <button class="primary signin-submit" type="submit">Sign in <span aria-hidden="true">→</span></button>
       </form>
       <div class="signin-security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg> Secure access to your workspace</div>
-      <div class="signin-help"><a href="{{ url_for('customer.home') }}">Looking for a room? Open the customer portal →</a></div>
+      <div class="signin-help"><a href="{{ url_for('customer.login') }}">Customer sign in →</a></div>
       <div class="signin-help">Need access? <span>Contact your administrator.</span></div>
     </div>
     <div class="signin-footer">RPMS <span>Rental Property Management System</span></div>

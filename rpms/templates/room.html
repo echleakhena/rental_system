@@ -1,5 +1,6 @@
 {% extends 'base.html' %}{% from 'icons.html' import icon %}
 {% block content %}
+<div class="room-details-compact">
   <div class="heading">
     <div>
       <div class="eyebrow">PORTFOLIO / ROOM DETAILS</div>
@@ -8,13 +9,12 @@
         {{ property.name if property else 'Property unavailable' }} · {{ floor.name or 'Floor ' ~ floor.floor_number if floor else 'Floor unavailable' }}
       </p>
     </div>
-    <a class="icon-action"
-       href="{{ url_for('main.records',table='rooms') }}">{{ icon("back") }}<span>Back to rooms</span></a>
+    <div class="room-detail-actions">
+      {% set row = room %}
+      {% include 'record_actions.html' %}
+      <a class="icon-action" href="{{ url_for('main.records',table='rooms') }}">{{ icon("back") }}<span>Back to rooms</span></a>
+    </div>
   </div>
-  <section class="panel">
-    {% set row = room %}
-    {% include 'record_actions.html' %}
-  </section>
   <section class="panel room-facts">
     <div>
       <small>Status</small><strong><span class="badge">{{ room.status or '—' }}</span></strong>
@@ -40,52 +40,14 @@
     </div>
     <p class="muted">
       {% if can_manage('rooms') %}
-        Upload the room, bathroom, kitchen and toilet photos in their matching slots. JPEG, PNG or WebP · maximum 5 MB and 20 megapixels each. Choose a new image to replace a photo.
+        Upload to replace, or select Remove. JPEG, PNG or WebP · up to 5 MB each.
       {% else %}
         Photos of this room.
       {% endif %}
     </p>
     <form method="post" enctype="multipart/form-data">
       <input type="hidden" name="_csrf" value="{{ csrf_token }}">
-      <div class="room-photo-grid">
-        {% for photo in photos %}
-          {% set slot = loop.index0 %}
-          {% set category = photo_categories[slot] %}
-          <div class="room-photo-slot">
-            <h3>{{ category }}</h3>
-            {% if photo %}
-              <a href="{{ url_for('main.room_photo',record_id=room.id,slot=slot) }}"
-                 target="_blank"
-                 rel="noopener">
-                <img src="{{ url_for('main.room_photo',record_id=room.id,slot=slot) }}"
-                     alt="{{ category }} of room {{ room.room_number }}{{ ' (sample interior)' if photo.startswith('demo-') }}"
-                     loading="lazy">
-              </a>
-              {% if photo.startswith('demo-') %}
-                <small class="demo-photo-label">Sample photo · not the actual room</small>
-              {% endif %}
-            {% else %}
-              <div class="photo-placeholder">
-                {{ icon("room") }}<span>{{ category }} photo</span>
-              </div>
-            {% endif %}
-            {% if can_manage('rooms') %}
-              <label>
-                {{ category }} photo
-                <input type="file"
-                       name="photo_{{ slot }}"
-                       accept="image/jpeg,image/png,image/webp">
-              </label>
-              {% if photo %}
-                <label class="photo-remove">
-                  <input type="checkbox" name="remove_{{ slot }}" value="yes">
-                  Remove this photo
-                </label>
-              {% endif %}
-            {% endif %}
-          </div>
-        {% endfor %}
-      </div>
+      {% include '_room_photo_fields.html' %}
       {% if can_manage('rooms') %}
         <div class="form-footer">
           <button class="primary icon-action">
@@ -95,4 +57,5 @@
       {% endif %}
     </form>
   </section>
+</div>
 {% endblock %}

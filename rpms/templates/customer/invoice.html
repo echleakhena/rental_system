@@ -30,7 +30,9 @@
   {% if invoice.balance_due > 0 %}
     <section class="card">
       <h2>Pay by QR</h2>
-      {% if qr %}
+      {% if pending_payment %}
+        <div class="notice" role="status">Payment proof received. Management is verifying the bank transfer. Your balance changes after confirmation; please wait before paying again.</div>
+      {% elif qr %}
         <p class="muted">Scan with your banking app. Check the recipient and enter your payment amount.</p>
         <img class="payment-qr"
              src="{{ url_for('customer.payment_qr') }}"
@@ -38,7 +40,7 @@
         <a class="download-link"
            href="{{ url_for('customer.payment_qr') }}"
            download="rental-payment-qr.jpg">Save QR image</a>
-        {% if proofs|selectattr('status','equalto','Pending')|list %}
+        {% if pending_payment %}
           <div class="notice">Your payment proof is awaiting confirmation.</div>
         {% else %}
           <form method="post" enctype="multipart/form-data">
@@ -70,6 +72,7 @@
       {% endif %}
     </section>
   {% endif %}
+  {% include 'customer/_payment_history.html' %}
   {% if proofs %}
     <section>
       <h2>Payment updates</h2>
@@ -79,6 +82,7 @@
             <strong>${{ '%.2f'|format(proof.amount) }}</strong><span class="status">{{ proof.status }}</span>
           </div>
           <p class="muted">{{ proof.reference }}</p>
+          {% if proof.status=='Rejected' %}<p class="helper">Management could not confirm this proof. Check the bank transfer and contact management before submitting corrected proof.</p>{% elif proof.status=='Confirmed' %}<p class="helper">Payment confirmed and applied to your bill.</p>{% endif %}
           <a href="{{ url_for('customer.evidence',kind='payment',record_id=proof.id) }}">View payment proof</a>
         </div>
       {% endfor %}

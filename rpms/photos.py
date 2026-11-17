@@ -2,12 +2,55 @@
 
 import warnings
 from io import BytesIO
+from pathlib import Path
+from uuid import uuid4
 
+from flask import current_app
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 ROOM_PHOTO_CATEGORIES = ("Room", "Bathroom", "Kitchen", "Toilet")
 
 MAX_PHOTO_BYTES = 5 * 1024 * 1024
+
+
+def update_room_photos(room, files, form, new_files, old_files):
+    """Stage validated photos; callers commit metadata before removing old files."""
+    existing = (list(room.photos or []) + [None] * len(ROOM_PHOTO_CATEGORIES))[
+        : len(ROOM_PHOTO_CATEGORIES)
+    ]
+    changes = {}
+    for slot in range(len(ROOM_PHOTO_CATEGORIES)):
+        upload = files.get(f"photo_{slot}")
+        if upload and upload.filename:
+            changes[slot] = process_photo(upload)
+        elif form.get(f"remove_{slot}") == "yes":
+            changes[slot] = None
+    if not changes:
+        return False
+    folder = Path(current_app.instance_path) / "room_photos"
+    folder.mkdir(exist_ok=True)
+    for slot, data in changes.items():
+        if existing[slot]:
+            old_files.append(existing[slot])
+        if data is None:
+            existing[slot] = None
+        else:
+            filename = uuid4().hex + ".jpg"
+            new_files.append(filename)
+            (folder / filename).write_bytes(data)
+            existing[slot] = filename
+    room.photos = existing
+    return True
+
+
+def remove_room_photo_files(names):
+    for name in names:
+        try:
+            (Path(current_app.instance_path) / "room_photos" / name).unlink(
+                missing_ok=True
+            )
+        except OSError:
+            current_app.logger.warning("Could not remove unused room photo")
 
 
 def process_photo(upload):

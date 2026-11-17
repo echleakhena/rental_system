@@ -33,10 +33,10 @@
             <h2>Your next steps</h2>
             <p>Customer updates waiting for your review</p>
           </div>
-          <span class="review-total">{{ pending_bookings + pending_readings + pending_payments }} pending</span>
+          <span class="review-total">{{ pending_bookings + preparing_rentals + pending_readings + pending_payments }} pending</span>
         </div>
         <div class="daily-actions">
-          {% for title,count,description,symbol,anchor in [('Booking requests',pending_bookings,'Confirm availability & reserve rooms','calendar','booking-requests'),('Utility readings',pending_readings,'Check meter photos before billing','meter','utility-readings'),('Payment proofs',pending_payments,'Verify transfers & update balances','finance','payment-proofs')] %}
+          {% for title,count,description,symbol,anchor in [('Booking requests',pending_bookings,'Confirm availability & reserve rooms','calendar','booking-requests'),('Prepare rentals',preparing_rentals,'Prepare agreements for confirmed bookings','leasing','prepare-rentals'),('Utility readings',pending_readings,'Check meter photos before billing','meter','utility-readings'),('Payment proofs',pending_payments,'Verify transfers & update balances','finance','payment-proofs')] %}
           <a href="{{ url_for("customer.management") }}#{{ anchor }}"><span class="daily-action-icon">{{ icon(symbol) }}</span>
           <div>
             <strong>{{ title }}</strong>

@@ -1,7 +1,6 @@
 """Rooms page routes."""
 
 from pathlib import Path
-from uuid import uuid4
 
 from flask import (
     abort,
@@ -17,7 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from ..models import MODELS, db
-from ..photos import ROOM_PHOTO_CATEGORIES, process_photo
+from ..photos import ROOM_PHOTO_CATEGORIES, remove_room_photo_files, update_room_photos
 from ..services import audit
 from ..web import bp, can_manage, login_required, user
 
@@ -39,52 +38,22 @@ def room_detail(record_id):
     if request.method == "POST":
         if not can_manage("rooms"):
             abort(403)
-        folder = Path(current_app.instance_path) / "room_photos"
         new_files = []
         old_files = []
         try:
-            existing = list(room.photos or [])
-            existing = (existing + [None] * len(ROOM_PHOTO_CATEGORIES))[
-                : len(ROOM_PHOTO_CATEGORIES)
-            ]
-            changes = {}
-            for slot in range(len(ROOM_PHOTO_CATEGORIES)):
-                upload = request.files.get(f"photo_{slot}")
-                if upload and upload.filename:
-                    changes[slot] = process_photo(upload)
-                elif request.form.get(f"remove_{slot}") == "yes":
-                    changes[slot] = None
-            if not changes:
+            if not update_room_photos(
+                room, request.files, request.form, new_files, old_files
+            ):
                 raise ValueError(
                     "Choose at least one photo or select a photo to remove."
                 )
-            folder.mkdir(exist_ok=True)
-            for slot, data in changes.items():
-                if existing[slot]:
-                    old_files.append(existing[slot])
-                if data is None:
-                    existing[slot] = None
-                else:
-                    filename = uuid4().hex + ".jpg"
-                    new_files.append(filename)
-                    (folder / filename).write_bytes(data)
-                    existing[slot] = filename
-            room.photos = existing
             audit(user().id, "rooms", room, "Update")
             db.session.commit()
-            for filename in old_files:
-                try:
-                    (folder / filename).unlink(missing_ok=True)
-                except OSError:
-                    current_app.logger.warning("Could not remove obsolete room photo")
+            remove_room_photo_files(old_files)
             flash("Room photos saved.", "success")
         except (ValueError, OSError, IntegrityError) as exc:
             db.session.rollback()
-            for filename in new_files:
-                try:
-                    (folder / filename).unlink(missing_ok=True)
-                except OSError:
-                    pass
+            remove_room_photo_files(new_files)
             flash(
                 str(exc)
                 if isinstance(exc, ValueError)

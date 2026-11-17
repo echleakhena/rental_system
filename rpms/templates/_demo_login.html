@@ -1,0 +1,14 @@
+{% set is_customer = demo_role == 'customer' %}
+<section class="demo-login" aria-labelledby="demo-account-title">
+  <div class="demo-login-heading">
+    <h3 id="demo-account-title">Try the {{ 'customer portal' if is_customer else 'admin dashboard' }}</h3>
+    <span class="demo-login-badge">DEMO</span>
+  </div>
+  <p class="demo-login-description">{{ 'Sign in as Demo Customer using the details below.' if is_customer else 'Use this demo account to explore RPMS.' }}</p>
+  <dl class="demo-login-credentials">
+    <div><dt>{{ 'Phone number' if is_customer else 'Email address' }}</dt><dd><code>{{ '099123456' if is_customer else 'admin@rpms.local' }}</code></dd></div>
+    <div><dt>Password</dt><dd><code>{{ 'Demo-Dd7xFzN4u_Wr' if is_customer else '0tbIn-Dp7_D7VNZf' }}</code></dd></div>
+  </dl>
+  <button class="demo-login-fill" type="button" data-demo-identity="{{ '099123456' if is_customer else 'admin@rpms.local' }}" data-demo-password="{{ 'Demo-Dd7xFzN4u_Wr' if is_customer else '0tbIn-Dp7_D7VNZf' }}" data-demo-identity-target="{{ 'phone' if is_customer else 'login-email' }}" data-demo-password-target="{{ 'password' if is_customer else 'login-password' }}">Use demo account <span aria-hidden="true">↗</span></button>
+  <p class="demo-login-hint" role="status" aria-live="polite">Fill in the demo details, then select Sign in.</p>
+</section>

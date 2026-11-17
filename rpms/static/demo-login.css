@@ -1,0 +1,78 @@
+.demo-login {
+  --demo-bg: #f5f8f6;
+  --demo-ink: #234a39;
+  --demo-muted: #65796e;
+  --demo-line: #dfe8e2;
+  padding: 18px;
+  border: 1px solid var(--demo-line);
+  border-radius: 10px;
+  background: var(--demo-bg);
+  color: var(--demo-ink);
+  text-align: left;
+}
+.demo-login-heading { display: flex; align-items: center; gap: 11px; }
+.demo-login-icon { display: grid; place-items: center; flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px; background: #e4eee7; }
+.demo-login-icon svg { width: 22px; height: 22px; }
+.demo-login-eyebrow { display: block; margin-bottom: 4px; font-size: 9px; letter-spacing: 1.5px; font-weight: 700; color: var(--demo-muted); }
+.demo-login .demo-login-heading h3 { margin: 0; font: inherit; font-size: 14px; font-weight: 700; letter-spacing: -.2px; line-height: 1.4; }
+.demo-login-badge { margin-left: auto; padding: 5px 7px; border: 1px solid #ceddd2; border-radius: 5px; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
+.demo-login .demo-login-description { margin: 6px 0 14px; font-size: 12px; line-height: 1.7; color: var(--demo-muted); }
+.demo-login .demo-login-person { margin: 0 0 12px; font-size: 12px; font-weight: 600; }
+.demo-login-person span { color: var(--demo-muted); font-weight: 400; }
+.demo-login .demo-login-credentials { margin: 0; padding: 0; background: transparent; border: 0; border-radius: 0; }
+.demo-login-credentials > div { display: grid; grid-template-columns: 90px minmax(0, 1fr); align-items: baseline; gap: 10px; padding: 7px 0; }
+.demo-login-credentials > div + div { border-top: 0; }
+.demo-login dt { margin: 0 0 5px; color: var(--demo-muted); font-size: 10px; font-weight: 500; }
+.demo-login dd { margin: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; user-select: text; }
+.demo-login code { padding: 0; background: transparent; color: inherit; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: inherit; }
+.demo-login .demo-login-fill { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 40px; margin: 12px 0 0; padding: 11px 14px; background: #fff; border: 1px solid #c3d5c9; border-radius: 8px; color: #28543e; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s; }
+.demo-login .demo-login-fill:hover { background: #e8f0eb; border-color: #809d8b; }
+.demo-login-fill:focus-visible { outline: 3px solid #86ad96; outline-offset: 3px; }
+.demo-login .demo-login-hint { margin: 10px 0 0; font-size: 10px; line-height: 1.6; color: var(--demo-muted); }
+.signin-main { padding-top: 28px; padding-bottom: 24px; }
+.signin-form-wrap { padding: 18px 0; }
+.signin-description { margin-bottom: 23px; }
+.signin-help { margin-top: 22px; padding-top: 18px; }
+.signin-help + .signin-help { margin-top: 12px; padding-top: 0; border-top: 0; }
+.customer-auth-layout { max-width: 440px; margin: 0 auto; }
+.customer-auth-layout .auth-intro { margin: 28px 0; }
+.customer-auth-layout .auth-intro .muted { max-width: 310px; line-height: 1.7; font-size: 13px; }
+.customer-auth-layout .auth-form { padding: 22px; border-radius: 18px; box-shadow: 0 12px 35px #243f2e07; }
+.customer-auth-layout .demo-login { margin: 0 0 24px; padding: 18px; }
+.customer-auth-layout .auth-form input { min-height: 48px; border-radius: 8px; }
+.auth-role-link { margin: 0 0 24px; text-align: center; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.auth-role-link a { font-weight: 600; }
+[data-theme=dark] .demo-login { --demo-bg: #24382d; --demo-ink: #dcece2; --demo-muted: #b1c7ba; --demo-line: #40574a; }
+[data-theme=dark] .demo-login-icon { background: #344f3f; }
+[data-theme=dark] .demo-login-badge { border-color: #526f5c; }
+[data-theme=dark] .demo-login .demo-login-credentials { background: transparent; }
+[data-theme=dark] .demo-login .demo-login-fill { background: #304e3c; border-color: #587460; color: #e2f1e7; }
+[data-theme=dark] .demo-login .demo-login-fill:hover { background: #3b604a; }
+@media (max-width: 420px) {
+  .demo-login { padding: 16px; }
+  .demo-login-heading { gap: 8px; }
+  .demo-login-badge { display: none; }
+  .customer-auth-layout .auth-form { padding: 16px; }
+  .customer-auth-layout .demo-login { padding: 14px; }
+}
+
+/* Keep the demo section in the form flow, independent of sidebar styling. */
+.demo-login { position: static; inset: auto; width: auto; min-width: 0; overflow: visible; box-sizing: border-box; }
+.signin-main { padding: 32px 44px 24px; }
+.signin-form-wrap { margin: auto 0; padding: 10px 0 24px; }
+.signin-shell { min-height: 760px; }
+.signin-main h2 { margin-top: 10px; }
+.signin-form label { margin-top: 18px; }
+.signin-form .signin-submit { margin-top: 22px; }
+@media (max-width: 900px) { .signin-main { padding: 28px; } }
+@media (max-width: 650px) {
+  .signin-story { min-height: 210px; }
+  .story-copy { margin-top: 22px; }
+  .story-copy h1 { font-size: 30px; }
+  .story-copy p { display: none; }
+  .signin-main { padding: 28px 22px 22px; }
+  .signin-shell { min-height: auto; }
+}
+@media (max-width: 360px) {
+  .demo-login-credentials > div { grid-template-columns: 1fr; gap: 0; }
+}

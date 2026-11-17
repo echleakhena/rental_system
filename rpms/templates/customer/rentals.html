@@ -4,7 +4,58 @@
   <h1>
     My rental<span class="green">.</span>
   </h1>
-  <p class="muted">Your space. Your bills. All taken care of.</p>
+  <p class="muted">Track your booking, rental, meter readings, and payments.</p>
+  <nav class="rental-section-links" aria-label="Rental sections"><a href="#monthly-summary">Monthly total</a><a href="#utilities">Utilities</a><a href="#bills">Invoices</a><a href="#payment-history-title">Payments</a></nav>
+  <section class="monthly-rental-summary" id="monthly-summary" aria-labelledby="monthly-summary-title">
+    <div class="section-heading"><h2 id="monthly-summary-title">Your monthly total</h2></div>
+    <form method="get" class="customer-month-filter">
+      <label for="billing-month">Billing month</label>
+      <div><input id="billing-month" type="month" name="period" value="{{ selected_month.strftime('%Y-%m') }}" required><button type="submit" class="button">View month</button></div>
+    </form>
+    {% if monthly_invoices %}
+      <div class="monthly-amount"><span>Remaining for {{ selected_month.strftime('%B %Y') }}</span><strong>${{ '%.2f'|format(monthly.due) }}</strong></div>
+      <dl class="monthly-charge-lines">
+        {% for label,key in [('Rent','rent'),('Water','water'),('Electricity','electricity')] %}<div><dt>{{ label }}</dt><dd>${{ '%.2f'|format(monthly[key]) }}</dd></div>{% endfor %}
+        {% if monthly.other %}<div><dt>Other charges / adjustments</dt><dd>${{ '%.2f'|format(monthly.other) }}</dd></div>{% endif %}
+        <div class="monthly-total-line"><dt>Invoice total</dt><dd>${{ '%.2f'|format(monthly.total) }}</dd></div>
+        <div><dt>Already paid</dt><dd>${{ '%.2f'|format(monthly.paid) }}</dd></div>
+      </dl>
+      <p class="helper">Based on {{ monthly_invoices|length }} issued {{ 'invoice' if monthly_invoices|length==1 else 'invoices' }}. Pending transfers do not reduce the balance until confirmed.</p>
+      {% for bill in monthly_invoices %}<a class="monthly-invoice-link" href="{{ url_for('customer.invoice',invoice_id=bill.id) }}">View invoice · {{ bill.invoice_no }} <span>→</span></a>{% endfor %}
+    {% else %}
+      <div class="monthly-amount"><span>{{ selected_month.strftime('%B %Y') }}</span><h3>Monthly invoice not issued yet</h3></div>
+      {% if scheduled_rent %}<p class="helper">Monthly rent: <strong>${{ '%.2f'|format(scheduled_rent) }}</strong>. Your final total includes utility charges after management reviews readings and issues the invoice.</p>{% else %}<p class="helper">No issued invoice for this month. Your bills appear here when management issues them.</p>{% endif %}
+    {% endif %}
+    <div class="rental-outstanding"><span>Outstanding across all months</span><strong>${{ '%.2f'|format(outstanding) }}</strong></div>
+  </section>
+  <section class="rental-progress" aria-label="Your next step">
+    <p class="eyebrow">YOUR NEXT STEP</p>
+    {% set open_bills = invoices|rejectattr('status','equalto','Paid')|list %}
+    {% set open_bookings = bookings|selectattr('status','in',['Pending','Confirmed'])|list %}
+    {% if pending_proofs %}
+      <h2>Payment awaiting confirmation</h2><p>Management is checking your bank transfer. Your balance updates after confirmation; please wait before paying again.</p>
+      <a href="#bills">View payment status →</a>
+    {% elif open_bills %}
+      <h2>Your monthly bill is ready</h2><p>Review rent and utility charges, then submit your payment proof.</p><a href="#bills">View your bills →</a>
+    {% elif current_month_complete %}
+      <h2>You're up to date</h2><p>Your issued bills are paid. Your next monthly bill will appear here after management reviews the next readings.</p>
+    {% elif readings_awaiting_review %}
+      <h2>Your meter readings are being reviewed</h2><p>Management will verify the readings and prepare your monthly bill. You can check each meter below.</p><a href="#utilities">View reading status →</a>
+    {% elif current %}
+      <h2>Keep your meter readings up to date</h2><p>Submit your water and electricity readings. Management reviews them before issuing your monthly bill.</p><a href="#utilities">View utilities →</a>
+    {% elif upcoming %}
+      <h2>Your rental is confirmed</h2><p>Your home and utility tools will appear when your rental begins.</p>
+    {% elif drafts %}
+      <h2>Your rental agreement is being prepared</h2><p>Management will check and activate your rental. You can follow your booking below.</p>
+    {% elif open_bookings %}
+      <h2>{{ 'Your booking is confirmed' if open_bookings[0].status=='Confirmed' else 'Your booking is being reviewed' }}</h2><p>{{ 'Management will prepare your rental agreement next.' if open_bookings[0].status=='Confirmed' else 'Management will check availability and confirm your room.' }}</p>
+    {% else %}
+      <h2>Find your next home</h2><p>Choose an available room and send a booking request to management.</p><a href="{{ url_for('customer.rooms') }}">Browse available rooms →</a>
+    {% endif %}
+  </section>
+  {% for lease in upcoming %}
+    <section class="card"><span class="status">UPCOMING RENTAL</span><h2>Room {{ room_by_id(lease.room_id).room_number }}</h2><p class="helper">{{ lease.start_date }} — {{ lease.end_date }} · ${{ '%.2f'|format(lease.monthly_rent) }} / month</p><p class="muted">Your agreement is active. Move-in starts on {{ lease.start_date }}.</p></section>
+  {% endfor %}
   {% for lease in current %}
     {% set room = room_by_id(lease.room_id) %}
     <section class="current-room">
@@ -20,8 +71,9 @@
         <h2 id="utilities">Water & electricity</h2>
         <span class="count">Meter readings</span>
       </div>
+      <p class="helper">Upload your water and electricity readings with a photo for each meter. Approved usage is added to your monthly invoice.</p>
       {% for meter in meters if meter.room_id==lease.room_id %}
-        {% set recent = readings|selectattr('meter_id','equalto',meter.id)|list %}
+        {% set recent = [latest_readings[meter.id]] if meter.id in latest_readings else [] %}
         <div class="card utility-card">
           <div class="row">
             <div class="utility-title">
@@ -37,15 +89,21 @@
             <div class="row reading-info">
               <span>{{ recent[0].reading_date }}</span><span class="status">{{ 'Awaiting review' if recent[0].status=='Draft' else recent[0].status }}</span>
             </div>
+            <p class="helper">Usage {{ recent[0].usage_quantity }} {{ meter.unit or 'units' }} × ${{ recent[0].unit_rate }} = <strong>${{ '%.2f'|format(recent[0].total_amount) }}</strong> · {{ 'Estimate, awaiting review' if recent[0].status=='Draft' else 'Saved utility charge' }}</p>
           {% endif %}
+          {% if recent and recent[0].status=='Draft' %}
+            <p class="helper">Your reading is awaiting review. Management will check the photo and confirm the charge.</p>
+          {% elif lease.id in billed_current %}
+            <p class="helper">This month's bill has been issued. Readings for next month can be submitted when that month begins.</p>
+          {% else %}
           <details>
-            <summary>Submit a new reading {{ symbol("camera") }}</summary>
+            <summary>Submit a new reading · {{ meter.meter_type }} {{ symbol("camera") }}</summary>
             <form action="{{ url_for('customer.submit_reading',lease_id=lease.id) }}"
                   method="post"
                   enctype="multipart/form-data">
               <input type="hidden" name="_csrf" value="{{ csrf_token }}">
               <input type="hidden" name="meter_id" value="{{ meter.id }}">
-              <label for="reading-{{ meter.id }}">Current meter number</label>
+              <label for="reading-{{ meter.id }}">Current meter reading</label>
               <input id="reading-{{ meter.id }}"
                      type="number"
                      name="current_reading"
@@ -61,7 +119,7 @@
                      max="{{ today }}"
                      value="{{ today }}"
                      required>
-              <label for="photo-{{ meter.id }}">Photo of the meter</label>
+              <label for="photo-{{ meter.id }}">Upload {{ meter.meter_type|lower }} meter photo</label>
               <input id="photo-{{ meter.id }}"
                      type="file"
                      name="photo"
@@ -75,18 +133,21 @@
               <button class="button full">Send reading</button>
             </form>
           </details>
+          {% endif %}
         </div>
       {% else %}
         <div class="empty">Management hasn't added meters for this room yet.</div>
       {% endfor %}
     </section>
   {% else %}
+    {% if not upcoming and not drafts and not open_bookings %}
     <div class="card empty">
       <span class="empty-icon">{{ symbol("home") }}</span>
       <h2>Your home is waiting</h2>
       <p>Your active rental will appear here once your lease begins.</p>
       <a class="button" href="{{ url_for('customer.rooms') }}">Explore rooms {{ symbol("arrow") }}</a>
     </div>
+    {% endif %}
   {% endfor %}
   <section>
     <div class="section-heading">
@@ -98,18 +159,19 @@
        href="{{ url_for('customer.invoice',invoice_id=bill.id) }}"><span class="bill-icon">{{ symbol("rentals") }}</span>
     <div>
       <strong>{{ bill.billing_period.strftime("%B %Y") }}</strong>
-      <p>
-        Room {{ room_by_id((leases|selectattr('id','equalto',bill.contract_id) |first).room_id).room_number }} · {{ bill.status }}
-      </p>
+      <p>Room {{ room_by_id((leases|selectattr('id','equalto',bill.contract_id) |first).room_id).room_number }} · {{ bill.status }}</p>
+      {% set parts = bill_breakdowns[bill.id] %}
+      <small class="bill-charge-summary">Rent ${{ '%.2f'|format(parts.rent) }} · Water ${{ '%.2f'|format(parts.water) }} · Electricity ${{ '%.2f'|format(parts.electricity) }}</small>
     </div>
     <div class="bill-amount">
-      <strong>${{ '%.2f'|format(bill.balance_due or 0) }}</strong><small>{{ 'Paid' if bill.status=='Paid' else 'Due ' ~ bill.due_date }}</small>
+      <strong>${{ '%.2f'|format(bill.balance_due or 0) }}</strong><small>{{ 'Paid' if bill.status=='Paid' else 'Payment in review' if bill.id in pending_proofs else 'Due ' ~ bill.due_date }}</small>
     </div>
   </a>
 {% else %}
   <p class="empty">No bills yet. Issued monthly bills appear here automatically.</p>
 {% endfor %}
 </section>
+{% include 'customer/_payment_history.html' %}
 <section>
   <h2>Bookings</h2>
   {% for booking in bookings %}
@@ -119,6 +181,9 @@
         <span class="status">{{ booking.status }}</span>
       </div>
       <p class="muted">Move-in · {{ booking.expected_move_in }}</p>
+      {% if booking.status=='Confirmed' %}<p class="helper">Your room is reserved. Management is preparing your rental agreement.</p>
+      {% elif booking.status=='Converted' %}<p class="helper">Your booking is now a rental. See your rental details above or in history.</p>
+      {% elif booking.status=='Cancelled' %}<p class="helper">This booking is closed. You can browse available rooms to request another.</p>{% endif %}
       {% if booking.status=='Pending' %}
         <p class="helper">Waiting for management to confirm.</p>
         <form action="{{ url_for('customer.cancel_booking',booking_id=booking.id) }}"

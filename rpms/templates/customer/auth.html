@@ -1,5 +1,10 @@
 {% extends 'customer/base.html' %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ asset_url('demo-login.css') }}">
+  <script src="{{ asset_url('demo-login.js') }}" defer></script>
+{% endblock %}
 {% block content %}
+<div class="customer-auth-layout">
   <div class="auth-intro">
     <span class="intro-icon">{{ symbol("home") }}</span>
     <p class="eyebrow">YOUR HOME STARTS HERE</p>
@@ -7,10 +12,14 @@
       {{ 'Make yourself at home' if registering else 'Welcome home' }}<span class="green">.</span>
     </h1>
     <p class="muted">
-      {{ 'A few details, and you’re ready to find your space.' if registering else 'Sign in to manage your everyday.' }}
+      {{ 'A few details, and you’re ready to find your space.' if registering else 'Your rental, payments, and home — all in one place.' }}
     </p>
   </div>
   <form method="post" class="card auth-form">
+    {% if not registering %}
+      {% set demo_role = 'customer' %}
+      {% include '_demo_login.html' %}
+    {% endif %}
     <input type="hidden" name="_csrf" value="{{ csrf_token }}">
     {% if registering %}
       <label for="name">Full name</label>
@@ -47,4 +56,8 @@
   <p class="auth-switch">
     {{ 'Already have an account?' if registering else 'New here?' }} <a href="{{ url_for('customer.login') if registering else url_for('customer.register') }}">{{ 'Sign in' if registering else 'Create an account' }}</a>
   </p>
+  {% if not registering %}
+    <p class="auth-role-link">Managing a property? <a href="{{ url_for('main.login') }}">Administrator sign in →</a></p>
+  {% endif %}
+</div>
 {% endblock %}

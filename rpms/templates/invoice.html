@@ -53,6 +53,11 @@
     {% if can_manage('invoices') and invoice.balance_due>0 and invoice.status not in ['Draft','Voided'] %}
       <section class="panel">
         <h2>Record payment</h2>
+        {% if pending_proofs %}
+          <div class="flash" role="status">This customer has a payment proof awaiting review. Verify it before recording another payment for the same transfer.
+            <a href="{{ url_for('customer.management') }}#payment-proofs">Review customer payment →</a>
+          </div>
+        {% endif %}
         <form method="post" class="form-grid">
           <input type="hidden" name="_csrf" value="{{ csrf_token }}">
           <label>

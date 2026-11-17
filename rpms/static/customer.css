@@ -1430,3 +1430,40 @@ h2 {letter-spacing: -.65px;}
     .detail-photo:not(.primary-photo) figcaption {flex-direction: column; align-items: flex-start; gap: 4px;}
     .detail-photo:not(.primary-photo) .detail-sample {font-size: 6px; left: 4px; top: 5px; padding: 3px 4px;}
 }
+
+/* Shared workflow status on the resident side. */
+.rental-progress { margin: 22px 0; padding: 22px; border: 1px solid #dce6dd; border-radius: 16px; background: #edf3ed; }
+.rental-progress h2 { margin: 10px 0; font-size: 20px; }
+.rental-progress > p:not(.eyebrow) { font-size: 13px; line-height: 1.8; color: #566c5e; }
+.rental-progress > a { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; }
+
+.rental-section-links { display: flex; gap: 8px; overflow-x: auto; margin: 18px 0; padding-bottom: 4px; }
+.rental-section-links a { padding: 8px 11px; border: 1px solid var(--line); border-radius: 20px; white-space: nowrap; background: white; font-size: 11px; font-weight: 600; }
+.monthly-rental-summary { padding: 22px; margin: 20px 0; border: 1px solid #dce6dd; border-radius: 16px; background: white; scroll-margin-top: 20px; }
+.monthly-rental-summary .section-heading { margin-top: 0; }
+.customer-month-filter label { margin: 0 0 6px; font-size: 11px; }
+.customer-month-filter > div { display: flex; align-items: stretch; gap: 8px; }
+.customer-month-filter input { min-width: 0; width: 100%; margin: 0; min-height: 42px; font-size: 14px; }
+.customer-month-filter .button { flex-shrink: 0; margin: 0; padding: 10px 12px; font-size: 11px; }
+.monthly-amount { margin: 22px 0 18px; }
+.monthly-amount > span { display: block; font-size: 12px; color: var(--muted); }
+.monthly-amount > strong { display: block; margin-top: 5px; font-family: Manrope, system-ui, sans-serif; font-size: 36px; line-height: 1.3; letter-spacing: -1.5px; }
+.monthly-amount h3 { margin-top: 9px; font-size: 18px; }
+.monthly-charge-lines { margin: 0; }
+.monthly-charge-lines > div, .rental-outstanding { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 7px 0; font-size: 13px; }
+.monthly-charge-lines dt { color: var(--muted); }
+.monthly-charge-lines dd { margin: 0; font-weight: 600; white-space: nowrap; }
+.monthly-charge-lines .monthly-total-line { border-top: 1px solid var(--line); margin-top: 7px; padding-top: 14px; }
+.monthly-total-line dt { font-weight: 700; color: var(--ink); }
+.monthly-invoice-link { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; font-size: 12px; font-weight: 700; overflow-wrap: anywhere; }
+.rental-outstanding { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 14px; font-size: 11px; }
+.bill-charge-summary { display: block; margin-top: 7px; font-size: 10px; line-height: 1.7; color: var(--muted); }
+.customer-payment-history { margin: 28px 0; }
+.payment-history-entry { margin-top: 12px; }
+.payment-history-date { margin: 8px 0; font-size: 12px; color: var(--muted); }
+.payment-history-entry > a { display: block; font-size: 12px; line-height: 1.6; }
+.payment-history-entry dl { margin: 12px 0 0; border-top: 1px solid var(--line); padding-top: 8px; }
+.payment-history-entry dl > div { display: grid; grid-template-columns: 65px minmax(0, 1fr); gap: 8px; padding: 4px 0; font-size: 11px; }
+.payment-history-entry dt { color: var(--muted); }
+.payment-history-entry dd { margin: 0; overflow-wrap: anywhere; }
+@media(max-width:360px) { .monthly-rental-summary { padding: 16px; } .customer-month-filter > div { flex-wrap: wrap; } .customer-month-filter .button { width: 100%; } }

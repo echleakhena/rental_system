@@ -14,10 +14,11 @@ from werkzeug.security import generate_password_hash
 from ..customer_models import CustomerAccount
 from ..identifiers import AUTO_REFERENCES
 from ..models import MODELS, SCHEMA, db
+from ..photos import ROOM_PHOTO_CATEGORIES, remove_room_photo_files, update_room_photos
 from ..policies import change_policy
 from ..record_config import CUSTOMER_FIELDS, EDITABLE, HIDDEN, REQUIRED, STATUSES
 from ..reporting import record_summary
-from ..services import audit, money
+from ..services import audit, money, validate_reading_period
 from ..web import bp, can_manage, label, login_required, user
 
 
@@ -92,6 +93,8 @@ def edit(table, record_id=None):
     if table not in EDITABLE or not can_manage(table):
         abort(403)
     row = db.get_or_404(MODELS[table], record_id) if record_id else MODELS[table]()
+    if table == "rooms" and record_id and request.method == "POST":
+        db.session.refresh(row, with_for_update=True)
     if record_id and change_policy(table, row):
         flash(change_policy(table, row), "error")
         return redirect(url_for("main.records", table=table))
@@ -99,6 +102,18 @@ def edit(table, record_id=None):
     reservation_based = table == "rental_contracts" and (
         not record_id or row.reservation_id is not None
     )
+    if reservation_based and not record_id and request.method == "GET":
+        booking_id = request.args.get("reservation_id", type=int)
+        if booking_id:
+            booking = db.get_or_404(MODELS["reservations"], booking_id)
+            if booking.status != "Confirmed":
+                abort(400, "Confirm this booking before preparing its rental.")
+            row.reservation_id = booking.id
+            row.start_date = booking.expected_move_in
+            room = db.session.get(MODELS["rooms"], booking.room_id)
+            row.monthly_rent = room.monthly_rent
+            row.billing_day = 1
+            row.payment_due_day = 5
     fields = [
         f
         for f in SCHEMA[table]
@@ -140,6 +155,8 @@ def edit(table, record_id=None):
     if original_status and original_status not in statuses:
         statuses.append(original_status)
     if request.method == "POST":
+        new_photo_files = []
+        old_photo_files = []
         try:
             for f in fields:
                 n = f["name"]
@@ -256,13 +273,33 @@ def edit(table, record_id=None):
             if table == "rental_contracts":
                 if reservation_based:
                     booking = (
-                        db.session.get(MODELS["reservations"], row.reservation_id)
+                        db.session.scalar(
+                            select(MODELS["reservations"])
+                            .where(MODELS["reservations"].id == row.reservation_id)
+                            .with_for_update()
+                            .execution_options(populate_existing=True)
+                        )
                         if row.reservation_id
                         else None
                     )
                     if not booking or not booking.room_id or not booking.tenant_id:
                         raise ValueError(
                             "Select a reservation with a customer and room."
+                        )
+                    if booking.status != "Confirmed":
+                        raise ValueError(
+                            "Confirm the booking before preparing its rental."
+                        )
+                    duplicate = db.session.scalar(
+                        select(MODELS["rental_contracts"].id).where(
+                            MODELS["rental_contracts"].reservation_id == booking.id,
+                            MODELS["rental_contracts"].id != (record_id or 0),
+                            MODELS["rental_contracts"].status.in_(["Draft", "Active"]),
+                        )
+                    )
+                    if duplicate:
+                        raise ValueError(
+                            "This booking already has a rental. Open the existing rental to continue."
                         )
                     row.room_id = booking.room_id
                 if row.end_date <= row.start_date:
@@ -284,6 +321,8 @@ def edit(table, record_id=None):
             if table == "meter_readings":
                 meter = db.session.get(MODELS["utility_meters"], row.meter_id)
                 lease = db.session.get(MODELS["rental_contracts"], row.contract_id)
+                db.session.refresh(lease, with_for_update=True)
+                validate_reading_period(lease, row.reading_date)
                 if meter.room_id != lease.room_id:
                     raise ValueError("Meter and lease must belong to the same room.")
                 last = db.session.scalar(
@@ -309,6 +348,10 @@ def edit(table, record_id=None):
                     )
                 row.usage_quantity = row.current_reading - row.previous_reading
                 row.total_amount = money(row.usage_quantity * row.unit_rate)
+            if table == "rooms":
+                update_room_photos(
+                    row, request.files, request.form, new_photo_files, old_photo_files
+                )
             db.session.add(row)
             db.session.flush()
             if table == "tenants":
@@ -353,17 +396,23 @@ def edit(table, record_id=None):
                     )
             audit(user().id, table, row, "Update" if record_id else "Create")
             db.session.commit()
+            remove_room_photo_files(old_photo_files)
             flash("Record saved.", "success")
             return redirect(
                 url_for("main.room_detail", record_id=row.id)
                 if table == "rooms"
+                else url_for("main.record_detail", table=table, record_id=row.id)
+                if table == "rental_contracts"
                 else url_for("main.records", table=table)
             )
-        except (ValueError, InvalidOperation, IntegrityError) as exc:
+        except (ValueError, InvalidOperation, IntegrityError, OSError) as exc:
             db.session.rollback()
+            remove_room_photo_files(new_photo_files)
             flash(
                 "A unique value already exists or a relationship is invalid."
                 if isinstance(exc, IntegrityError)
+                else "Room photos could not be saved. Please try again."
+                if isinstance(exc, OSError)
                 else str(exc),
                 "error",
             )
@@ -379,6 +428,12 @@ def edit(table, record_id=None):
         editing=record_id is not None,
         customer_has_account=customer_account is not None,
         customer_password_required=table == "tenants" and customer_account is None,
+        photo_categories=ROOM_PHOTO_CATEGORIES,
+        photos=(list(row.photos or []) + [None] * len(ROOM_PHOTO_CATEGORIES))[
+            : len(ROOM_PHOTO_CATEGORIES)
+        ]
+        if table == "rooms"
+        else [],
     )
 
 
