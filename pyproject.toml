@@ -1,0 +1,19 @@
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+extend-exclude = [".venv", "instance"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+ignore = ["E712"] # SQLAlchemy boolean comparisons generate SQL expressions.
+
+[tool.djlint]
+profile = "jinja"
+indent = 2
+max_line_length = 100
+format_css = false
+format_js = false
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/configure_sqlite.py" = ["E402"]
+"scripts/configure_postgres.py" = ["E402"] # Direct execution adds the project root first.

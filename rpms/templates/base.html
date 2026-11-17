@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+      {% block title %}RPMS · Property management{% endblock %}
+    </title>
+    <script src="{{ asset_url('theme.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset_url('style.css') }}">
+    {% if request.endpoint in ['main.dashboard', 'main.mis_dss'] %}
+      <link rel="stylesheet" href="{{ asset_url('dashboard.css') }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ asset_url('theme.css') }}">
+    {% if current_user %}<link rel="stylesheet" href="{{ asset_url('admin-workspace.css') }}">{% endif %}
+    {% if current_user %}<script src="{{ asset_url('admin-navigation.js') }}" defer></script>{% endif %}
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="{{ 'app-shell' if current_user else 'login-page' }}">
+    {% if current_user %}
+      {% include 'sidebar.html' %}
+    {% else %}
+      {% include 'theme_toggle.html' %}
+    {% endif %}
+    <main class="{{ 'auth' if not current_user }}">
+      {% if current_user %}
+        <header>
+          <span>Workspace <b>/
+            {% if table is defined %}
+              {{ 'Customers' if table=='tenants' else 'Invoices & utilities' if table=='invoices' else titleize(table) }}
+            {% elif request.endpoint == 'main.invoice' %}
+              Invoice
+            {% elif request.endpoint == 'main.simulator' %}
+              Pricing simulator
+            {% elif request.endpoint=='customer.management' %}
+              Customer requests
+            {% elif page_title is defined %}
+              {{ page_title }}
+            {% else %}
+              Overview
+            {% endif %}
+          </b></span>
+          <div>
+            {% include 'admin_tools.html' %}
+            {% include 'theme_toggle.html' %}
+          </div>
+        </header>
+      {% endif %}
+      <div class="content">
+        {% for category, message in get_flashed_messages(with_categories=true) %}
+          <div role="alert" class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </body>
+</html>

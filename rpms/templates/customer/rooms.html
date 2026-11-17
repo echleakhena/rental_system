@@ -1,0 +1,36 @@
+{% extends 'customer/base.html' %}
+{% block content %}
+  <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+  <h1>
+    Find your room<span class="green">.</span>
+  </h1>
+  <p class="muted">Good spaces for your everyday.</p>
+  <form class="search" method="get">
+    <label class="sr-only" for="q">Search rooms</label>
+    <input id="q"
+           name="q"
+           value="{{ q }}"
+           placeholder="Search property or room…">
+    <input type="hidden" name="type" value="{{ selected_type }}">
+    <button aria-label="Search">{{ symbol("arrow") }}</button>
+  </form>
+  <div class="filter-chips room-type-filters">
+    <a class="{{ 'selected' if not selected_type }}"
+       href="{{ url_for('customer.rooms',q=q) }}">All rooms</a>
+    {% for type in room_types %}
+      <a class="{{ 'selected' if selected_type==type }}"
+         href="{{ url_for('customer.rooms',type=type,q=q) }}">{{ type }}</a>
+    {% endfor %}
+  </div>
+  <div class="section-heading">
+    <h2>Available rooms</h2>
+    <span class="count">{{ rooms|length }} spaces</span>
+  </div>
+  <div class="room-list">
+    {% for room in rooms %}
+      {% include 'customer/_room_card.html' %}
+    {% else %}
+      <div class="empty">No rooms found. Try a different search.</div>
+    {% endfor %}
+  </div>
+{% endblock %}

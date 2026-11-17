@@ -1,0 +1,31 @@
+{% from 'icons.html' import icon %}
+<details class="admin-tools">
+  <summary>
+    {{ icon("settings") }}<span>More tools</span><span class="tools-chevron">⌄</span>
+  </summary>
+  <div class="admin-tools-popover">
+    <p class="tools-intro">SETUP & ADDITIONAL TOOLS</p>
+    <div class="tools-groups">
+      {% for group,tables in groups.items() %}
+        <section>
+          <h3>{{ group }}</h3>
+          {% for name in tables if name not in ['rooms','tenants','rental_contracts','invoices','payments','meter_readings','maintenance_requests'] %}
+            {% if group!='Administration' or can_manage('users') %}
+              <a href="{{ url_for('main.records',table=name) }}">{{ titleize(name) }}</a>
+            {% endif %}
+          {% endfor %}
+        </section>
+      {% endfor %}
+      <section>
+        <h3>Insights</h3>
+        <a href="{{ url_for('main.mis_dss') }}">MIS & DSS</a><a href="{{ url_for('main.simulator') }}">Pricing simulator</a>
+      </section>
+    </div>
+    <form class="tools-signout"
+          action="{{ url_for('main.logout') }}"
+          method="post">
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+      <button type="submit">Sign out</button>
+    </form>
+  </div>
+</details>

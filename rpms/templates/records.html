@@ -1,0 +1,121 @@
+{% extends 'base.html' %}{% from 'icons.html' import icon %}
+{% block content %}
+  <div class="heading">
+    <div>
+      <div class="eyebrow">WORKSPACE / RECORDS</div>
+      <h1>{{ 'Customers' if table=='tenants' else titleize(table) }}</h1>
+      <p class="muted">{{ 'Manage customer details and sign-in accounts.' if table=='tenants' else 'Manage and review your ' ~ table|replace('_', ' ') ~ '.' }}</p>
+    </div>
+    <div class="records-heading-actions">
+      {% if table == 'rooms' and can_manage('floors') %}
+        <a class="floor-setup-button icon-action" href="{{ url_for('main.records',table='floors') }}">{{ icon('floors') }}<span>Manage floors</span></a>
+      {% elif table == 'floors' %}
+        <a class="floor-setup-button icon-action" href="{{ url_for('main.records',table='rooms') }}">{{ icon('room') }}<span>Back to rooms</span></a>
+      {% endif %}
+      {% if editable and can_manage(table) %}
+        <a class="primary icon-action" href="{{ url_for('main.edit',table=table) }}">{{ icon('plus') }}<span>{{ 'Add room' if table == 'rooms' else 'Add floor' if table == 'floors' else 'Add customer' if table=='tenants' else 'Add record' }}</span></a>
+      {% endif %}
+    </div>
+  </div>
+  {% if summary_cards %}
+    <div class="room-summary"
+         aria-label="{{ titleize(table) }} summary totals">
+      {% for item in summary_cards %}
+      <article class="panel room-summary-card summary-{{ item.status }}"><span class="summary-icon">{{ icon(item.icon) }}</span>
+      <div>
+        <p>{{ item.label }}</p>
+        <strong>{{ item.count }}</strong>
+      </div>
+    </article>
+  {% endfor %}
+</div>
+<p class="room-summary-note">
+  All {{ table|replace('_', ' ') }} · totals are independent of search results.
+</p>
+{% endif %}
+<section class="panel">
+  <form class="search" method="get">
+    <input aria-label="Search records"
+           name="q"
+           value="{{ q }}"
+           placeholder="Search {{ table|replace('_', ' ') }}…">
+    <button>Search</button>
+  </form>
+  <div class="table-wrap">
+    <table{% if table=='rental_contracts' %} class="rental-contracts-table"{% endif %}>
+      <thead>
+        <tr>
+          {% if table=='rooms' %}<th>Photo</th>{% endif %}
+          {% for f in fields %}<th>{{ 'Name' if table=='tenants' and f.name=='full_name' else titleize(f.name) }}</th>{% endfor %}
+          {% if table=='tenants' %}<th>Password</th>{% endif %}
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            {% if table=='rooms' %}
+              <td>
+                {% set photo_slot = namespace(value=none) %}
+                {% for photo in row.photos or [] %}
+                  {% if photo and photo_slot.value is none %}
+                    {% set photo_slot.value = loop.index0 %}
+                  {% endif %}
+                {% endfor %}
+                <a class="room-table-photo"
+                   href="{{ url_for('main.room_detail',record_id=row.id) }}"
+                   aria-label="View room {{ row.room_number }}">
+                  {% if photo_slot.value is not none %}
+                    <img src="{{ url_for('main.room_photo',record_id=row.id,slot=photo_slot.value) }}"
+                         alt="Room {{ row.room_number }}{{ ' sample photo' if row.photos[photo_slot.value].startswith("demo-") else '' }}"
+                         loading="lazy">
+                  {% else %}
+                    {{ icon("room") }}
+                  {% endif %}
+                </a>
+              </td>
+            {% endif %}
+            {% for f in fields %}
+              <td>
+                {% set value = row[f.name] %}
+                {% if f.name=='status' %}
+                  <span class="badge">{{ value or '—' }}</span>
+                {% elif f.name in lookup %}
+                  {{ lookup[f.name].get(value,'—') }}
+                {% else %}
+                  {{ value if value is not none else '—' }}
+                {% endif %}
+              </td>
+            {% endfor %}
+            {% if table=='tenants' %}<td><span aria-label="{{ 'Password is set' if row.id in customer_accounts else 'Password not set' }}">{{ '••••••••' if row.id in customer_accounts else 'Not set' }}</span></td>{% endif %}
+            <td class="actions">
+              <div class="record-actions-row">
+              {% include 'record_actions.html' %}
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="{{ fields|length+1+(1 if table in ['rooms','tenants'] else 0) }}"
+                class="empty">No records found.{% if editable and can_manage(table) %} Add your first record to get started.{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination">
+    {% if page>1 %}
+      <a href="{{ url_for('main.records',table=table,page=page-1,q=q) }}">← Previous</a>
+    {% endif %}
+    <span>Page {{ page }}</span>
+    {% if more %}
+      <a href="{{ url_for('main.records',table=table,page=page+1,q=q) }}">Next →</a>
+    {% endif %}
+  </div>
+</section>
+{% if not editable %}
+  <p class="muted">
+    These records are read-only here. Available transactions use dedicated workflow actions.
+  </p>
+{% endif %}
+{% endblock %}

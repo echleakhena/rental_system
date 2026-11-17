@@ -1,0 +1,8 @@
+{% extends 'customer/base.html' %}
+{% block content %}
+  <div class="empty card">
+    <h1>Photo too large</h1>
+    <p>Choose a JPEG, PNG or WebP photo under 5 MB and try again.</p>
+    <a class="button" href="{{ url_for('customer.rentals') }}">Back to My Rental</a>
+  </div>
+{% endblock %}

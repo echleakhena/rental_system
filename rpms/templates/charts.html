@@ -1,0 +1,24 @@
+<div class="dashboard-charts">
+  {% for chart in reports.charts %}
+    <section class="panel chart-card"
+             aria-labelledby="chart-title-{{ loop.index }}">
+      <h2 id="chart-title-{{ loop.index }}">{{ chart.title }}</h2>
+      <p class="chart-subtitle">{{ chart.subtitle }}</p>
+      <div class="chart-body">
+        <div class="pie-chart {{ 'chart-empty' if not chart.total }}"
+             style="background:{{ chart.gradient }}"
+             role="img"
+             aria-label="{{ chart.title }}: {% for segment in chart.segments %}{{ segment.label }} {{ '$%.2f'|format(segment.value) if chart.currency else segment.value|int }} ({{ '%.1f'|format(segment.percentage) }} percent){{ ', ' if not loop.last }}{% endfor %}">
+        </div>
+        {% if not chart.total %}<p class="chart-empty-label">No data yet</p>{% endif %}
+        <ul class="chart-legend">
+          {% for segment in chart.segments %}
+            <li>
+              <span class="chart-label"><i style="background:{{ segment.color }}" aria-hidden="true"></i>{{ segment.label }}</span><strong>{{ '$%.2f'|format(segment.value) if chart.currency else segment.value|int }} <small>{{ '%.1f'|format(segment.percentage) }}%</small></strong>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endfor %}
+</div>

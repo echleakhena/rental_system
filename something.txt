@@ -1,0 +1,28 @@
+File or folder	Responsibility
+app.py	Starts the application
+rpms/__init__.py	Creates Flask, loads configuration, and initializes database tools
+rpms/models.py	Builds SQLAlchemy model classes
+rpms/schema.json	Describes the 26 database tables and their fields
+rpms/routes/	Handles login, records, rooms, billing, dashboards, and reports
+rpms/services.py	Implements lease activation, invoice generation, and payment rules
+rpms/web.py	Provides shared login, access, and form security helpers
+rpms/reporting.py	Calculates report data and management recommendations
+rpms/templates/	Contains the frontend page templates
+rpms/static/	Contains stylesheets, JavaScript, and static images
+tests/test_app.py	Contains automated tests
+
+
+
+| Part | Technology | Purpose |
+|---|---|---|
+| Programming language | Python | Handles application logic and calculations |
+| Backend framework | Flask | Receives browser requests and controls application pages |
+| Frontend | HTML, CSS, JavaScript | Displays pages, styles the interface, and handles theme switching |
+| Template engine | Jinja2 | Inserts Python data into HTML pages |
+| Main database | PostgreSQL | Stores application records |
+| Database ORM | SQLAlchemy and Flask-SQLAlchemy | Allows Python code to work with database tables |
+| PostgreSQL driver | Psycopg | Connects the application to PostgreSQL |
+| Database migrations | Flask-Migrate and Alembic | Manage changes to the database structure |
+| Excel export | openpyxl | Creates downloadable Excel reports |
+| Image processing | Pillow | Validates and resizes uploaded room photos |
+| Automated testing | Python unittest | Checks application behavior |

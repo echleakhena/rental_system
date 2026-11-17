@@ -1,0 +1,33 @@
+<a class="room-card"
+   href="{{ url_for('customer.room',room_id=room.id) }}">
+  <div class="room-cover">
+    {% if room.photos and room.photos|select|list %}
+      {% set cover = namespace(shown=false) %}
+      {% for photo in room.photos %}
+        {% if photo and not cover.shown %}
+          <img src="{{ url_for('customer.room_photo',room_id=room.id,slot=loop.index0) }}"
+               alt="Room {{ room.room_number }}"
+               loading="lazy">
+          {% if photo.startswith('demo-') %}<span class="room-sample">Sample interior</span>{% endif %}
+          {% set cover.shown = true %}
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="room-placeholder">
+        {{ symbol("rooms") }}<span>Your next chapter</span>
+      </div>
+    {% endif %}
+    <span class="availability">Available</span>
+  </div>
+  <div class="room-info">
+    <span class="eyebrow">{{ room_location(room) }}</span>
+    <div class="row">
+      <h3>Room {{ room.room_number }}</h3>
+      <strong class="price">${{ '%.0f'|format(room.monthly_rent or 0) }}<small>/mo</small></strong>
+    </div>
+    <p>
+      {{ room.room_type or 'Private room' }}
+      {% if room.size_sqm %}<span class="dot">·</span>{{ room.size_sqm }} m²{% endif %}<span class="room-card-arrow">{{ symbol("arrow") }}</span>
+    </p>
+  </div>
+</a>

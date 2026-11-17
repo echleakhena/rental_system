@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% from 'icons.html' import icon %}
+{% block content %}
+  <div class="heading">
+    <div>
+      <div class="eyebrow">RECORD DETAILS</div>
+      <h1>{{ 'Customer information' if table=='tenants' else titleize(table) }}</h1>
+    </div>
+    <a class="icon-action" href="{{ url_for('main.records',table=table) }}">{{ icon("back") }}Back to list</a>
+  </div>
+  <section class="panel">
+    <div class="record-detail-grid">
+      {% for name,value in details %}
+        <div>
+          <small>{{ 'Name' if table=='tenants' and name=='full_name' else titleize(name[:-3]) if name.endswith('_id') else titleize(name) }}</small>
+          <p>{{ value if value is not none else '—' }}</p>
+        </div>
+      {% endfor %}
+    </div>
+    {% include 'record_actions.html' %}
+    {% if table=='rental_contracts' and can_manage('invoices') and row.status=='Active' %}
+      <div class="actions">
+        <form method="post" action="/contracts/{{ row.id }}/invoice">
+          <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+          <input aria-label="Billing month"
+                 type="month"
+                 name="period"
+                 value="{{ today.strftime('%Y-%m') }}"
+                 required>
+          <button>Generate invoice</button>
+        </form>
+      </div>
+    {% endif %}
+    {% if change_policy(table,row) %}<p class="muted">{{ change_policy(table,row) }}</p>{% endif %}
+  </section>
+{% endblock %}

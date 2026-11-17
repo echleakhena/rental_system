@@ -1,0 +1,14 @@
+{% set reason = change_policy(table,row) %}
+<div class="record-actions">
+  <a class="icon-action"
+     href="{{ url_for('main.record_detail',table=table,record_id=row.id) }}">{{ icon("eye") }}<span>View</span></a>
+  {% if can_manage(table) and not reason %}
+    <a class="icon-action"
+       href="{{ url_for('main.edit',table=table,record_id=row.id) }}">{{ icon("edit") }}<span>Edit</span></a><a class="icon-action delete-action"
+   href="{{ url_for('main.delete_record',table=table,record_id=row.id) }}">{{ icon("trash") }}<span>Delete</span></a>
+  {% else %}
+    <span class="icon-action action-disabled"
+          title="{{ reason if can_manage(table) else 'Your role has read-only access.' }}">{{ icon("edit") }}<span>Edit</span></span><span class="icon-action action-disabled"
+      title="{{ reason if can_manage(table) else 'Your role has read-only access.' }}">{{ icon("trash") }}<span>Delete</span></span>
+  {% endif %}
+</div>

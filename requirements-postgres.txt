@@ -1,0 +1,3 @@
+# Optional: only needed for legacy PostgreSQL setup or data transfer.
+-r requirements.txt
+psycopg[binary]==3.3.7

@@ -1,0 +1,58 @@
+
+.login-page .auth { background:#f3f5f1; padding:64px 32px; }
+.login-page .auth .content { max-width:1160px; padding:0; }
+.signin-shell { display:grid; grid-template-columns:1fr 1fr; min-height:690px; background:#fff; border:1px solid #dfe5df; border-radius:20px; overflow:hidden; box-shadow:0 24px 80px #19392d0c; }
+.signin-story { position:relative; padding:40px 44px 28px; background:#153f36 url("images/login-property.png") center center / cover no-repeat; color:#f4f6ee; isolation:isolate; overflow:hidden; display:flex; flex-direction:column; }
+.signin-story::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,rgba(8,30,23,.88) 0%,rgba(8,30,23,.68) 40%,rgba(8,30,23,.08) 73%,rgba(8,30,23,.72) 100%); }
+.brand-symbol svg { width:27px; height:27px; }
+.signin-brand { display:flex; align-items:center; gap:12px; font-size:22px; font-weight:700; letter-spacing:1px; }
+.signin-brand small { display:block; font-size:8px; font-weight:500; letter-spacing:1.7px; margin-top:3px; color:#d3dfd3; }
+.brand-symbol { display:grid; place-content:center; width:42px; height:42px; background:#e2ebd5; color:#153f36; border-radius:12px; font-size:34px; letter-spacing:-3px; }
+.story-copy { margin-top:65px; position:relative; z-index:1; }
+.story-kicker { font-size:9px; letter-spacing:1.8px; color:#c5d3bf; }
+.story-copy h1 { font-size:clamp(36px,3.8vw,49px); line-height:1.13; letter-spacing:-2px; font-weight:500; margin:21px 0 18px; }
+.story-copy p { color:#e0e9df; line-height:1.8; font-size:14px; }
+.story-footer { margin-top:auto; padding-top:28px; font-size:10px; color:#e0e9df; }
+.signin-main { padding:52px 56px 28px; display:flex; flex-direction:column; justify-content:center; min-width:0; }
+.signin-form-wrap { margin:auto 0; padding:30px 0; }
+.signin-kicker { font-size:10px; letter-spacing:1.8px; font-weight:700; color:#698377; }
+.signin-main h2 { margin:14px 0 10px; font-size:33px; letter-spacing:-1.2px; font-weight:600; }
+.signin-description { color:#68786e; font-size:13px; margin:0 0 34px; line-height:1.7; }
+.signin-form label { display:block; font-size:12px; font-weight:600; margin:22px 0 9px; }
+.signin-form input:not([type="hidden"]) { display:block; width:100%; min-height:49px; padding:13px 15px; margin:0; background:#fcfdfb; border:1px solid #dce3dc; border-radius:7px; font:inherit; font-size:13px; transition:border-color .15s,box-shadow .15s; }
+.signin-form input::placeholder { color:#79877d; }
+.signin-form input:focus { outline:none; border-color:#397b60; box-shadow:0 0 0 3px #397b601c; }
+.signin-form .signin-submit { display:flex; align-items:center; justify-content:center; gap:17px; width:100%; min-height:49px; margin-top:29px; border-radius:7px; background:#1c5a45; border:1px solid #1c5a45; color:white; font-size:13px; font-weight:600; cursor:pointer; transition:background .15s; }
+.signin-form .signin-submit:hover { background:#124331; }
+.signin-submit:focus-visible { outline:3px solid #91b68b; outline-offset:3px; }
+.signin-security { display:flex; justify-content:center; align-items:center; gap:7px; margin-top:18px; color:#68796d; font-size:10px; }
+.signin-security svg { width:13px; height:13px; }
+.signin-help { margin-top:38px; padding-top:24px; border-top:1px solid var(--line); text-align:center; font-size:11px; color:#68796d; line-height:1.8; }
+.signin-help span { color:var(--ink); font-weight:500; }
+.signin-footer { display:flex; justify-content:space-between; gap:12px; font-size:9px; color:#68796d; }
+[data-theme=dark] .login-page .auth { background:#131e19; }
+[data-theme=dark] .signin-shell { background:#1e2923; border-color:#33443d; }
+[data-theme=dark] .signin-description,[data-theme=dark] .signin-security,[data-theme=dark] .signin-help,[data-theme=dark] .signin-footer { color:#a3b6ac; }
+[data-theme=dark] .signin-kicker { color:#9bbb9f; }
+[data-theme=dark] .signin-form .signin-submit { background:#97cdb0; color:#15372a; border-color:#97cdb0; }
+[data-theme=dark] .signin-form .signin-submit:hover { background:#b2ddc4; }
+@media (max-width:900px) {
+.login-page .auth { padding:76px 24px 32px; }
+.signin-story { padding:32px 28px; }
+.signin-main { padding:35px 30px 25px; }
+.story-copy h1 { font-size:38px; }
+}
+@media (max-width:650px) {
+.login-page .auth { display:block; padding:70px 16px 24px; }
+.signin-shell { grid-template-columns:1fr; min-height:auto; border-radius:15px; }
+.signin-story { padding:26px; min-height:310px; background-position:center 56%; }
+.story-copy { margin-top:30px; }
+.story-copy h1 { font-size:34px; margin:14px 0; }
+.story-copy p { margin-bottom:0; font-size:12px; }
+.story-footer { display:none; }
+.signin-main { padding:12px 26px 24px; }
+.signin-main h2 { font-size:29px; }
+.signin-description { margin-bottom:24px; }
+.signin-help { margin-top:28px; }
+.signin-footer { font-size:8px; }
+}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}{% from 'icons.html' import icon %}
+{% block extra_head %}<link rel="stylesheet" href="{{ asset_url('billing.css') }}">{% endblock %}
+{% block content %}<div class="invoice-document">
+  <p class="invoice-document-brand">RPMS <span>RENTAL INVOICE</span></p>
+  <div class="heading">
+    <div>
+      <div class="eyebrow">BILLING / INVOICE</div>
+      <h1>{{ invoice.invoice_no }}</h1>
+      <p class="muted">{{ invoice.billing_period }} · Due {{ invoice.due_date }}</p>
+    </div>
+    <div class="invoice-heading-actions"><span class="badge">{{ invoice.status }}</span><a class="bill-outline" href="{{ url_for('main.records',table='invoices',contract_id=invoice.contract_id,period=invoice.billing_period.strftime('%Y-%m') if invoice.billing_period else '') }}">Invoices & utilities</a><button type="button" class="bill-outline" onclick="window.print()">Print invoice</button></div>
+  </div>
+  <p class="invoice-share-note">Issued bills are available to the linked customer in My Rental, including the utility breakdown.</p>
+  <div class="invoice-recipient"><div><span>BILL TO</span><strong>{{ bill_to.full_name if bill_to else 'Customer not linked' }}</strong><small>{{ bill_to.phone or '' if bill_to else '' }}</small></div><div><span>ROOM / RENTAL</span><strong>{{ invoice_room.room_number if invoice_room else '—' }}</strong><small>Rental {{ rental.contract_no or rental.id if rental else '—' }}</small></div><div><span>INVOICE DATE</span><strong>{{ invoice.invoice_date.strftime('%d %b %Y') if invoice.invoice_date else '—' }}</strong><small>Due {{ invoice.due_date }}</small></div></div>
+  <div class="invoice-layout">
+    <section class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Previous</th><th>Current</th><th>Usage / quantity</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td>{{ item.description }}</td>
+                {% set reading = reading_details.get(item.meter_reading_id) %}
+                <td>{{ reading.previous if reading else '—' }}</td><td>{{ reading.current if reading else '—' }}</td>
+                <td>{{ item.quantity }}{% if reading %}<small class="invoice-reading-unit">{{ reading.unit }}</small>{% endif %}</td>
+                <td>${{ item.unit_price }}</td>
+                <td>${{ item.amount }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="totals">
+        <p>
+          Total <b>${{ invoice.total_amount }}</b>
+        </p>
+        <p>
+          Paid <b>${{ invoice.paid_amount }}</b>
+        </p>
+        <h2>
+          Balance due <span>${{ invoice.balance_due }}</span>
+        </h2>
+      </div>
+    </section>
+    {% if can_manage('invoices') and invoice.balance_due>0 and invoice.status not in ['Draft','Voided'] %}
+      <section class="panel">
+        <h2>Record payment</h2>
+        <form method="post" class="form-grid">
+          <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+          <label>
+            <span class="field-caption">{{ icon("finance") }}<span>Amount (USD)</span></span>
+            <input type="number"
+                   name="amount"
+                   min="0.01"
+                   max="{{ invoice.balance_due }}"
+                   step="0.01"
+                   required>
+          </label>
+          <label>
+            <span class="field-caption">{{ icon("finance") }}<span>Payment method</span></span>
+            <select name="method">
+              <option>Cash</option>
+              <option>Transfer</option>
+              <option>KHQR</option>
+            </select>
+          </label>
+          <label>
+            <span class="field-caption">{{ icon("invoice") }}<span>Reference</span></span>
+            <input name="reference">
+          </label>
+          <div class="form-footer">
+            <button class="primary icon-action">
+              {{ icon("save") }}<span>Confirm payment</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

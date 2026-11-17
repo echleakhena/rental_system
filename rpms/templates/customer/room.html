@@ -1,0 +1,56 @@
+{% extends 'customer/base.html' %}
+{% block title %}Room {{ room.room_number }} · {{ room_location(room) }} · RPMS{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ asset_url('room-detail.css') }}">{% endblock %}
+{% block content %}
+<article class="room-page">
+  <div class="detail-breadcrumb"><a href="{{ url_for('customer.rooms') }}"><span>←</span> All rooms</a><span>FIND YOUR SPACE</span></div>
+  <div class="room-detail-gallery" aria-label="Room, bathroom, kitchen and toilet photos">
+    {% for category in photo_categories %}
+      {% set slot = loop.index0 %}
+      {% set photo = room.photos[slot] if room.photos and slot < room.photos|length else none %}
+      <figure class="detail-photo {{ 'primary-photo' if loop.first }}">
+        {% if photo %}
+          <a href="{{ url_for('customer.room_photo',room_id=room.id,slot=slot) }}"
+             data-room-photo data-category="{{ category }}" data-sample="{{ 'true' if photo.startswith('demo-') else 'false' }}"
+             aria-label="Enlarge {{ category|lower }} photo">
+            <img src="{{ url_for('customer.room_photo',room_id=room.id,slot=slot) }}"
+                 alt="{{ 'Sample interior for the ' ~ category|lower ~ ' photo slot' if photo.startswith('demo-') else category ~ ' of room ' ~ room.room_number }}">
+            <span class="photo-expand" aria-hidden="true">⤢</span>
+          </a>
+          {% if photo.startswith('demo-') %}<span class="detail-sample">Sample interior</span>{% endif %}
+        {% else %}
+          <div class="detail-photo-empty">{{ symbol('camera') }}<span>Coming soon</span></div>
+        {% endif %}
+        <figcaption>{{ category }}<span>{{ '%02d'|format(loop.index) }} / {{ '%02d'|format(photo_categories|length) }}</span></figcaption>
+      </figure>
+    {% endfor %}
+  </div>
+  {% set demo = namespace(found=false) %}
+  {% for photo in room.photos or [] if photo and photo.startswith('demo-') %}{% set demo.found=true %}{% endfor %}
+  {% if demo.found %}<p class="photo-disclosure">{{ symbol('camera') }} Sample interiors shown. Actual photos may vary.</p>{% endif %}
+  <header class="room-intro">
+    <div class="row"><p class="eyebrow">{{ room_location(room) }}</p><span class="room-available"><i></i> Available now</span></div>
+    <h1>Your next chapter.<br><span>Room {{ room.room_number }}.</span></h1>
+    <p class="room-subtitle">{{ room.room_type or 'Private room' }}{% if room.size_sqm %}<span>·</span>{{ '%g'|format(room.size_sqm) }} m²{% endif %}</p>
+  </header>
+  <section class="rent-overview" aria-label="Rental pricing">
+    <div class="rent-top"><div><p>Monthly rent</p><strong>${{ '%.0f'|format(room.monthly_rent or 0) }}<small>/ month</small></strong></div><span class="rent-icon">{{ symbol('home') }}</span></div>
+    <div class="rent-divider"></div>
+    <div class="deposit-line"><span>Security deposit</span><strong>${{ '%.2f'|format(room.default_deposit or 0) }}</strong></div>
+    <p class="rent-footnote">Utility charges are calculated separately.</p>
+  </section>
+  {% if room.description %}<section class="room-about"><p class="eyebrow">THE LITTLE DETAILS</p><h2>A closer look at your space</h2><p>{{ room.description }}</p></section>{% endif %}
+  <section class="utility-section"><div class="detail-section-heading"><span class="detail-section-icon">{{ symbol('electric') }}</span><div><p class="eyebrow">KNOW WHAT TO EXPECT</p><h2>Utilities, made clear</h2></div></div>
+  {% if meters %}<div class="utility-rate-list">{% for meter in meters %}<div class="utility-rate"><span class="rate-symbol {{ 'water-rate' if meter.meter_type=='Water' }}">{{ symbol('water' if meter.meter_type=='Water' else 'electric') }}</span><div><h3>{{ meter.meter_type }}</h3><p>Based on your meter usage</p></div><strong>${{ '%g'|format(meter.default_rate or 0) }}<small>/ {{ meter.unit or 'unit' }}</small></strong></div>{% endfor %}</div>{% else %}<p class="utility-awaiting">Management will confirm the water and electricity rates before you move in.</p>{% endif %}
+  <div class="utility-reassurance">{{ symbol('camera') }}<p>Send meter photos from My Rental and keep track of your monthly usage.</p></div></section>
+  <section class="booking-panel" id="book-room"><div class="booking-heading"><span class="eyebrow">LET'S MAKE IT YOURS</span><span class="booking-mini-icon">{{ symbol('rentals') }}</span></div><h2>Ready for a fresh start?</h2><p>Choose when you'd like to move in.<br>We'll take care of the next step.</p>
+    {% if customer_account %}<form action="{{ url_for('customer.book',room_id=room.id) }}" method="post"><input type="hidden" name="_csrf" value="{{ csrf_token }}"><label for="move_in">Preferred move-in date</label><div class="booking-date"><input id="move_in" type="date" name="move_in" min="{{ today }}" required></div><button class="button full">Request this room {{ symbol('arrow') }}</button></form>
+    {% else %}<a class="button full" href="{{ url_for('customer.login') }}">Sign in to request this room {{ symbol('arrow') }}</a><p class="booking-register">New to RPMS? <a href="{{ url_for('customer.register') }}">Create an account</a></p>{% endif %}
+    <div class="booking-note"><span>✓</span><p>Your request goes to management for confirmation. Sending a request does not confirm your booking.</p></div>
+  </section>
+  <a class="back-explore" href="{{ url_for('customer.rooms') }}">Still exploring? <strong>See other rooms {{ symbol('arrow') }}</strong></a>
+  <div class="room-booking-dock"><div><span>MONTHLY RENT</span><strong>${{ '%.0f'|format(room.monthly_rent or 0) }}<small>/mo</small></strong></div><a class="button" href="#book-room">{{ 'Request room' if customer_account else 'Book this room' }} {{ symbol('arrow') }}</a></div>
+</article>
+<dialog class="room-lightbox" aria-label="Room photo viewer"><div class="lightbox-bar"><div><strong data-photo-title></strong><span data-photo-position></span></div><button type="button" data-photo-close aria-label="Close photo viewer">×</button></div><div class="lightbox-image"><img data-photo-image alt=""></div><div class="lightbox-controls"><button type="button" data-photo-prev aria-label="Previous photo">←</button><p data-photo-note></p><button type="button" data-photo-next aria-label="Next photo">→</button></div></dialog>
+<script src="{{ asset_url('room-detail.js') }}" defer></script>
+{% endblock %}

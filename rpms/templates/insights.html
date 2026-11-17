@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% from 'icons.html' import icon %}
+{% block content %}
+  <div class="{{ 'compact-dashboard mis-page' if mis else 'report-page' }}">
+    <div class="heading">
+      <div>
+        <div class="eyebrow">PORTFOLIO INSIGHTS</div>
+        <h1>{{ page_title }}</h1>
+        <p class="muted">
+          {{ 'Management summaries and decision support.' if mis else 'Customer payments and outstanding balances across all issued invoices.' }}
+        </p>
+      </div>
+      {% if mis %}
+        <a class="primary icon-action" href="{{ url_for('main.simulator') }}">{{ icon("chart") }}<span>Pricing simulator</span></a>
+      {% else %}
+        <a class="primary icon-action"
+           href="{{ url_for('main.export_report') }}">{{ icon("download") }}<span>Export Excel</span></a>
+      {% endif %}
+    </div>
+    {% if not mis %}
+      {% set summary = [
+              {'label':'Billed customers','count':reports.customers|length,'icon':'people','status':'total','money':false},
+              {'label':'Paid','count':reports.customers|selectattr('status','equalto','Paid')|list|length,'icon':'inspection','status':'active','money':false},
+              {'label':'Partially paid','count':reports.customers|selectattr('status','equalto','Partially paid')|list|length,'icon':'finance','status':'pending','money':false},
+              {'label':'Unpaid','count':reports.customers|selectattr('status','equalto','Unpaid')|list|length,'icon':'invoice','status':'inactive','money':false},
+              {'label':'Collected payments','count':reports.customers|sum(attribute='paid'),'icon':'finance','status':'confirmed','money':true},
+              {'label':'Outstanding balance','count':reports.customers|sum(attribute='due'),'icon':'invoice','status':'cancelled','money':true}
+            ] %}
+      <div class="room-summary report-summary"
+           aria-label="Customer payment report summary">
+        {% for item in summary %}
+        <article class="panel room-summary-card summary-{{ item.status }}"><span class="summary-icon">{{ icon(item.icon) }}</span>
+        <div>
+          <p>{{ item.label }}</p>
+          <strong>{{ '$%.2f'|format(item.count) if item.money else item.count }}</strong>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+  <p class="room-summary-note">
+    All-time issued invoices linked to primary customers · amounts in USD · matches the table and Excel export.
+  </p>
+{% endif %}
+{% if mis %}
+  <div class="stats">
+    {% set rooms = reports.charts[0] %}{% set revenue = reports.charts[1] %}
+    <article class="panel">
+      <p>Occupancy</p>
+      <strong>{{ '%.1f'|format(rooms.segments[0].percentage) }}%</strong><small>{{ rooms.segments[0].value|int }} occupied / {{ rooms.total|int }} rooms</small></article>
+    <article class="panel">
+      <p>Collected invoice payments</p>
+      <strong>${{ '%.2f'|format(revenue.segments[0].value) }}</strong><small>All-time issued invoices</small></article>
+    <article class="panel">
+      <p>Outstanding balance</p>
+      <strong>${{ '%.2f'|format(revenue.segments[1].value) }}</strong><small>All-time issued invoices</small></article>
+    <article class="panel">
+      <p>Collection rate</p>
+      <strong>{{ '%.1f'|format(revenue.segments[0].percentage) }}%</strong><small>Collected / total invoiced</small></article>
+  </div>
+  {% include 'charts.html' %}
+  <div class="mis-opportunity">
+    <span>{{ icon("chart") }} <strong>${{ '%.2f'|format(decisions.vacancy_opportunity) }}/mo</strong> potential rent from vacant rooms</span><a href="{{ url_for('main.simulator') }}">Compare scenarios →</a>
+  </div>
+  <div class="mis-workspace">
+    <section class="panel decision-panel">
+      <div class="section-title">
+        <h2>Recommended next steps</h2>
+        <span class="muted">As of {{ decisions.as_of }}</span>
+      </div>
+      <p class="muted">Based on current records. Expand an item for the suggested action.</p>
+      <div class="decision-grid">
+        {% for action in decisions.actions %}
+          <details class="decision-row">
+            <summary>
+              <span class="badge {{ 'payment-unpaid' if action.priority=='High' }}">{{ action.priority }}</span><span class="decision-summary"><strong>{{ action.title }}</strong><span>{{ action.evidence }}</span></span><span class="decision-expand" aria-hidden="true">⌄</span>
+            </summary>
+            <div class="decision-detail">
+              <p class="muted">{{ action.next_step }}</p>
+              <a href="{{ url_for('main.records',table=action.table) }}">Review {{ action.table|replace('_', ' ') }} →</a>
+            </div>
+          </details>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+  <section class="panel customer-report">
+    <div class="section-title">
+      <h2>Customer payment report</h2>
+      <a href="{{ url_for('main.records',table='invoices') }}">View invoices →</a>
+    </div>
+    <p class="muted">
+      One row per primary customer with issued invoices. Draft and voided invoices are excluded.
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Paid amount</th>
+            <th>Outstanding</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in reports.customers %}
+            <tr>
+              <td>{{ c.name }}</td>
+              <td>${{ '%.2f'|format(c.paid) }}</td>
+              <td>${{ '%.2f'|format(c.due) }}</td>
+              <td>
+                <span class="badge payment-{{ c.status|lower|replace(' ', '-') }}">{{ c.status }}</span>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="empty">No customer invoices yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if reports.unlinked %}
+      <p class="muted">
+        {{ reports.unlinked }} invoice(s) without a primary customer are excluded from this customer report.
+      </p>
+    {% endif %}
+  </section>
+  {% if mis %}</div>{% endif %}
+</div>
+{% endblock %}

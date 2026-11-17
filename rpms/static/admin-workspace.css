@@ -1,0 +1,1198 @@
+/* Focused management navigation and daily operations dashboard. */
+.app-shell {
+    --workspace-surface: #fff;
+    --workspace-soft: #f1f5f1;
+    --workspace-accent: #2a665b;
+    --workspace-page: #f6f8f5;
+    background: var(--workspace-page);
+}
+
+[data-theme=dark] .app-shell {
+    --workspace-surface: #1e2923;
+    --workspace-soft: #26352d;
+    --workspace-accent: #9bd1b7;
+    --workspace-page: #151d19;
+}
+
+.app-shell .essential-sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 28px 15px 16px;
+    background: var(--workspace-surface);
+    border-right: 1px solid var(--line);
+}
+
+.app-shell .essential-sidebar .brand {
+    padding: 0 9px 30px;
+    gap: 10px;
+    font-size: 32px;
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.admin-brand-mark {
+    height: 37px;
+    width: 37px;
+    background: #2a665b;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: white;
+}
+
+.admin-brand-mark .menu-icon {
+    height: 23px;
+    width: 23px;
+}
+
+.admin-brand-dot {
+    color: #bfa17e;
+}
+
+.app-shell .essential-sidebar .brand small {
+    font-size: 9px;
+    letter-spacing: 1.45px;
+    color: var(--muted);
+    margin-top: 7px;
+    font-weight: 500;
+}
+
+.app-shell .essential-sidebar .nav {
+    min-height: 43px;
+    margin: 3px 0;
+    padding: 11px 13px;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--muted);
+    gap: 12px;
+}
+
+.app-shell .essential-sidebar .nav .menu-icon {
+    height: 18px;
+    width: 18px;
+    stroke-width: 1.6;
+}
+
+.app-shell .essential-sidebar .nav.selected {
+    background: var(--workspace-soft);
+    color: var(--workspace-accent);
+    font-weight: 700;
+    box-shadow: inset 3px 0 0 var(--workspace-accent);
+}
+
+.app-shell .essential-sidebar .nav:hover {
+    background: var(--workspace-soft);
+    color: var(--workspace-accent);
+}
+
+.app-shell .essential-sidebar .menu-caption {
+    font-size: 11px;
+    letter-spacing: 1.3px;
+    color: var(--muted);
+    margin: 5px 12px 9px;
+}
+
+.app-shell .essential-sidebar .nav-section-label {
+    margin-top: 25px;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 35px;
+}
+
+.portal-shortcut {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 10px;
+    background: var(--workspace-soft);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    color: var(--workspace-accent);
+}
+
+.portal-shortcut>span {
+    width: 28px;
+    display: grid;
+    place-items: center;
+}
+
+.portal-shortcut strong {
+    font-size: 14px;
+    display: block;
+    font-weight: 600;
+}
+
+.portal-shortcut small {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+.sidebar-account {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 18px;
+    padding: 16px 1px 0;
+    border-top: 1px solid var(--line);
+}
+
+.staff-avatar {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #f0e7d8;
+    color: #9b805a;
+    font-weight: 700;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.sidebar-account>div {
+    min-width: 0;
+    flex: 1;
+}
+
+.sidebar-account strong {
+    font-size: 14px;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-account small {
+    font-size: 12px;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+}
+
+.app-shell .sidebar-account button {
+    padding: 4px;
+    min-width: 30px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+}
+
+.sidebar-account button svg {
+    height: 16px;
+    width: 16px;
+}
+
+.app-shell main>header {
+    background: var(--workspace-surface);
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+}
+
+.app-shell .admin-tools {
+    position: relative;
+    z-index: 15;
+}
+
+.admin-tools>summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 8px 10px;
+    min-height: 34px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.admin-tools>summary::-webkit-details-marker {
+    display: none;
+}
+
+.admin-tools>summary .menu-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.tools-chevron {
+    font-size: 15px;
+    margin-left: 6px;
+}
+
+.app-shell header .admin-tools-popover {
+    display: block;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: var(--workspace-surface);
+    border: 1px solid var(--line);
+    box-shadow: 0 16px 48px #152c2b20;
+    border-radius: 14px;
+    width: 550px;
+    max-width: calc(100vw - 30px);
+    padding: 22px;
+    max-height: 70vh;
+    overflow: auto;
+    color: var(--ink);
+}
+
+.tools-intro {
+    font-size: 12px;
+    letter-spacing: 1.3px;
+    color: var(--muted);
+    margin: 0 0 18px;
+}
+
+.app-shell header .tools-groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.tools-groups h3 {
+    font-size: 14px;
+    color: var(--ink);
+    margin: 0 0 9px;
+}
+
+.tools-groups a {
+    display: block;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+    padding: 5px 0;
+}
+
+.tools-groups a:hover {
+    color: var(--workspace-accent);
+}
+
+.app-shell .content {
+    max-width: 1600px;
+}
+
+.app-shell .admin-overview-heading {
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.app-shell .admin-overview-heading h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -.9px;
+    margin-bottom: 8px;
+}
+
+.app-shell .admin-overview-heading .eyebrow {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-bottom: 9px;
+}
+
+.app-shell .admin-overview-heading .muted {
+    font-size: 15px;
+}
+
+.dashboard-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.workspace-date {
+    font-size: 14px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.app-shell .dashboard-heading-actions .primary {
+    font-size: 14px;
+    padding: 11px 14px;
+    border-radius: 8px;
+}
+
+.app-shell .portfolio-dashboard .panel {
+    border: 1px solid var(--line);
+    background: var(--workspace-surface);
+    border-radius: 13px;
+    box-shadow: 0 3px 10px #1e443303;
+}
+
+.app-shell .admin-kpis {
+    gap: 16px;
+    margin-bottom: 23px;
+}
+
+.app-shell .admin-kpis article {
+    padding: 19px 20px;
+    margin: 0;
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.app-shell .admin-kpis .kpi-top p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.kpi-top>span {
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: #eaf3e9;
+    color: #7e9b70;
+}
+
+.kpi-blue .kpi-top>span {
+    background: #e9f1f6;
+    color: #779bb3;
+}
+
+.kpi-sand .kpi-top>span {
+    background: #f7f0e4;
+    color: #b39b6b;
+}
+
+.kpi-rose .kpi-top>span {
+    background: #f8eeea;
+    color: #bc9180;
+}
+
+.kpi-top .menu-icon {
+    height: 17px;
+    width: 17px;
+    stroke-width: 1.5;
+}
+
+.app-shell .admin-kpis strong {
+    font-size: 35px;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    font-weight: 600;
+}
+
+.app-shell .admin-kpis small {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 9px;
+}
+
+.daily-work {
+    background: var(--workspace-surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin: 0 0 24px;
+    padding: 19px 20px;
+}
+
+.daily-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.daily-heading-icon {
+    background: var(--workspace-soft);
+    border-radius: 10px;
+    width: 33px;
+    height: 33px;
+    display: grid;
+    place-items: center;
+    color: #789375;
+}
+
+.daily-heading-icon svg {
+    height: 17px;
+    width: 17px;
+}
+
+.app-shell .daily-heading h2 {
+    font-size: 16px;
+    letter-spacing: -.2px;
+    margin: 0 0 4px;
+}
+
+.daily-heading p {
+    font-size: 13px;
+    margin: 0;
+    color: var(--muted);
+}
+
+.review-total {
+    margin-left: auto;
+    font-size: 12px;
+    color: #a78d59;
+    border: 1px solid #efe4c9;
+    background: #fbf5e9;
+    padding: 5px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+.daily-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.daily-actions>a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--line);
+    padding: 13px;
+    border-radius: 10px;
+    color: var(--ink);
+    min-width: 0;
+    transition: background .15s;
+}
+
+.daily-actions>a:hover {
+    background: var(--workspace-soft);
+}
+
+.daily-action-icon {
+    display: grid;
+    place-items: center;
+    color: #879b7d;
+    flex-shrink: 0;
+}
+
+.daily-action-icon svg {
+    height: 20px;
+    width: 20px;
+    stroke-width: 1.5;
+}
+
+.daily-actions strong {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.daily-actions p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 5px 0 0;
+    line-height: 1.5;
+}
+
+.daily-count {
+    margin-left: auto;
+    width: 23px;
+    min-width: 23px;
+    height: 23px;
+    background: var(--workspace-soft);
+    color: var(--muted);
+    font-size: 14px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+}
+
+.daily-count.has-items {
+    background: #e5efe1;
+    color: #638052;
+    font-weight: 700;
+}
+
+.daily-arrow {
+    font-size: 16px;
+    color: #b0bcac;
+}
+
+.app-shell .portfolio-dashboard .availability-panel {
+    padding: 21px;
+    margin-bottom: 22px;
+}
+
+.app-shell .portfolio-dashboard .section-title h2 {
+    font-size: 17px;
+    letter-spacing: -.2px;
+}
+
+.portfolio-dashboard .section-title>a {
+    font-size: 13px;
+    color: var(--workspace-accent);
+}
+
+.portfolio-dashboard .board-subtitle {
+    font-size: 13px;
+    margin: 8px 0 0;
+    color: var(--muted);
+}
+
+.room-status-tabs {
+    display: flex;
+    gap: 7px;
+    border-bottom: 1px solid var(--line);
+    padding: 2px 0 12px;
+    margin: 17px 0 0;
+    overflow-x: auto;
+}
+
+.room-status-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    white-space: nowrap;
+    color: var(--muted);
+    font-size: 14px;
+    border-radius: 7px;
+}
+
+.room-status-tabs a.active {
+    color: var(--workspace-accent);
+    background: var(--workspace-soft);
+    font-weight: 600;
+}
+
+.room-status-tabs span {
+    background: var(--workspace-surface);
+    border: 1px solid var(--line);
+    padding: 2px 4px;
+    min-width: 17px;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.app-shell .portfolio-dashboard .room-filters {
+    padding: 15px 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    gap: 12px;
+}
+
+.app-shell .portfolio-dashboard .room-filters label {
+    font-size: 13px;
+}
+
+.app-shell .portfolio-dashboard .room-filters input,
+.app-shell .portfolio-dashboard .room-filters select {
+    font-size: 14px;
+    min-height: 34px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    background: var(--workspace-surface);
+}
+
+.app-shell .portfolio-dashboard .room-filters button {
+    font-size: 14px;
+    min-height: 34px;
+    border-radius: 7px;
+}
+
+.app-shell .portfolio-dashboard .room-board {
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 12px;
+    margin-top: 2px;
+}
+
+.app-shell .portfolio-dashboard .unit-card {
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--workspace-surface);
+    box-shadow: inset 0 3px 0 #b0c99e;
+}
+
+.app-shell .portfolio-dashboard .unit-card.unit-occupied {
+    box-shadow: inset 0 3px 0 #97b9cf;
+}
+
+.app-shell .portfolio-dashboard .unit-card.unit-reserved {
+    box-shadow: inset 0 3px 0 #d9c38f;
+}
+
+.app-shell .portfolio-dashboard .unit-card.unit-maintenance {
+    box-shadow: inset 0 3px 0 #c9a293;
+}
+
+.app-shell .portfolio-dashboard .unit-card h3 {
+    font-size: 29px;
+    margin: 16px 0 6px;
+    letter-spacing: -.5px;
+    color: var(--ink);
+}
+
+.app-shell .portfolio-dashboard .unit-card .unit-type {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.app-shell .portfolio-dashboard .unit-card .unit-location {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 12px;
+}
+
+.app-shell .portfolio-dashboard .unit-card .unit-door {
+    background: var(--workspace-soft);
+    color: var(--muted);
+    width: 29px;
+    height: 29px;
+    border-radius: 9px;
+}
+
+.unit-door svg {
+    width: 17px;
+    height: 17px;
+}
+
+.app-shell .portfolio-dashboard .unit-status {
+    font-size: 12px;
+}
+
+.app-shell .portfolio-dashboard .unit-bottom {
+    padding-top: 13px;
+    margin-top: 13px;
+}
+
+.app-shell .portfolio-dashboard .unit-bottom strong {
+    font-size: 18px;
+    color: var(--ink);
+}
+
+.app-shell .portfolio-dashboard .unit-bottom small {
+    font-size: 12px;
+}
+
+.app-shell .portfolio-dashboard .unit-details summary {
+    font-size: 13px;
+    padding-top: 11px;
+    color: var(--muted);
+}
+
+.app-shell .portfolio-dashboard .unit-details>div {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.app-shell .portfolio-dashboard .board-footer {
+    font-size: 13px;
+    padding-top: 15px;
+}
+
+.app-shell .portfolio-dashboard .dashboard-finance {
+    gap: 20px;
+}
+
+.app-shell .portfolio-dashboard .dashboard-finance>.panel {
+    padding: 20px;
+}
+
+.app-shell .portfolio-dashboard .dashboard-finance td {
+    font-size: 14px;
+    padding: 13px 8px;
+}
+
+.app-shell .portfolio-dashboard .dashboard-finance th {
+    font-size: 12px;
+    padding: 11px 8px;
+    background: var(--workspace-soft);
+}
+
+.dashboard-analytics {
+    margin: 6px 0 0;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: var(--workspace-surface);
+}
+
+.dashboard-analytics>summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 20px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink);
+}
+
+.dashboard-analytics>summary>span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.dashboard-analytics>summary svg {
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+}
+
+.dashboard-analytics>summary small {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.dashboard-analytics>summary b {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.dashboard-analytics[open]>summary b {
+    transform: rotate(45deg);
+}
+
+.dashboard-analytics>div {
+    padding: 0 20px 20px;
+}
+
+.dashboard-analytics>div>a {
+    font-size: 14px;
+}
+
+[data-theme=dark] .review-total {
+    background: #3d3624;
+    border-color: #5b5033;
+    color: #d3bd8c;
+}
+
+[data-theme=dark] .daily-count.has-items {
+    background: #344b35;
+    color: #c3d7b2;
+}
+
+[data-theme=dark] .kpi-top>span {
+    background: #2c4032;
+}
+
+@media(max-width:1200px) {
+    .daily-actions {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .daily-heading {
+        margin-bottom: 12px;
+    }
+
+    .daily-actions>a {
+        padding: 10px 12px;
+    }
+
+    .daily-actions p {
+        display: inline;
+        margin-left: 8px;
+    }
+
+    .daily-count {
+        margin-left: auto;
+    }
+
+    .workspace-date {
+        display: none;
+    }
+}
+
+@media(max-width:900px) {
+    .app-shell .admin-overview-heading h1 {
+        font-size: 27px;
+    }
+
+    .dashboard-heading-actions {
+        gap: 8px;
+    }
+
+    .app-shell .portfolio-dashboard .room-board {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-analytics>summary small {
+        display: none;
+    }
+}
+
+@media(max-width:650px) {
+    .app-shell .essential-sidebar {
+        position: static;
+        inset: auto;
+        width: 100%;
+        max-height: none;
+        padding: 15px 16px 8px;
+        overflow: visible;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .app-shell .essential-sidebar .brand {
+        padding: 0 3px 15px;
+        font-size: 29px;
+    }
+
+    .admin-brand-mark {
+        width: 32px;
+        height: 32px;
+    }
+
+    .app-shell .essential-sidebar nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 4px;
+        padding-bottom: 3px;
+    }
+
+    .app-shell .essential-sidebar .menu-caption,
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .app-shell .essential-sidebar .nav {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 10px;
+        min-height: 40px;
+        font-size: 14px;
+        margin: 0;
+        gap: 6px;
+    }
+
+    .app-shell .essential-sidebar .nav.selected {
+        box-shadow: none;
+    }
+
+    .app-shell main {
+        margin-left: 0;
+    }
+
+    .app-shell main>header {
+        padding: 0 16px;
+        height: 52px;
+        gap: 8px;
+    }
+
+    .app-shell main>header b {
+        margin-left: 3px;
+    }
+
+    .app-shell main>header>div {
+        gap: 7px;
+    }
+
+    .admin-tools>summary {
+        font-size: 13px;
+        padding: 7px;
+    }
+
+    .app-shell header .admin-tools-popover {
+        position: fixed;
+        top: 145px;
+        right: 15px;
+    }
+
+    .app-shell header .tools-groups {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .app-shell .admin-overview-heading {
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .app-shell .admin-overview-heading h1 {
+        font-size: 25px;
+    }
+
+    .app-shell .admin-overview-heading .muted {
+        font-size: 14px;
+    }
+
+    .app-shell .admin-kpis {
+        gap: 10px;
+    }
+
+    .app-shell .admin-kpis article {
+        padding: 14px;
+    }
+
+    .app-shell .admin-kpis strong {
+        font-size: 29px;
+    }
+
+    .app-shell .admin-kpis .kpi-top p {
+        font-size: 13px;
+    }
+
+    .kpi-top>span {
+        width: 25px;
+        height: 25px;
+    }
+
+    .kpi-top .menu-icon {
+        height: 14px;
+        width: 14px;
+    }
+
+    .daily-work {
+        padding: 16px;
+    }
+
+    .daily-actions p {
+        display: block;
+        margin: 4px 0 0;
+    }
+
+    .daily-actions>a {
+        gap: 9px;
+    }
+
+    .daily-heading p {
+        font-size: 12px;
+    }
+
+    .app-shell .portfolio-dashboard .availability-panel {
+        padding: 15px;
+    }
+
+    .room-status-tabs a {
+        padding: 7px 9px;
+        font-size: 13px;
+    }
+
+    .app-shell .portfolio-dashboard .unit-card {
+        padding: 12px;
+    }
+
+    .app-shell .portfolio-dashboard .unit-card h3 {
+        font-size: 25px;
+    }
+
+    .app-shell .portfolio-dashboard .room-filters {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .app-shell .portfolio-dashboard .board-footer {
+        gap: 12px;
+        line-height: 1.6;
+        flex-wrap: wrap;
+    }
+
+    .app-shell .portfolio-dashboard .dashboard-finance>.panel {
+        padding: 16px;
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .daily-actions>a {
+        transition: none;
+    }
+}
+
+/* Room directory: a calm, compact list for everyday administration. */
+.app-shell .admin-overview-heading {
+    background: var(--workspace-surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 25px 26px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+.admin-overview-heading:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 23px;
+    bottom: 23px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--workspace-accent);
+}
+.app-shell .admin-overview-heading h1 {font-size: 34px;letter-spacing:-1px;}
+.app-shell .admin-overview-heading .eyebrow {font-size: 11px;letter-spacing:1.6px;color:var(--workspace-accent);}
+.app-shell .admin-kpis article {border-radius:14px;padding:20px 21px;}
+.app-shell .admin-kpis strong {font-size: 37px;letter-spacing:-1.3px;}
+.app-shell .admin-kpis .kpi-top p {font-size: 15px;}
+.app-shell .daily-work {border-radius:15px;}
+.app-shell .portfolio-dashboard .availability-panel {padding:0;overflow:hidden;border-radius:15px;}
+.app-shell .availability-panel>.section-title {padding:23px 23px 0;margin-bottom:0;align-items:center;}
+.app-shell .portfolio-dashboard .section-title h2 {font-size: 19px;gap:8px;}
+.list-view-label {display:inline-flex;align-items:center;gap:5px;font-size: 12px;font-weight:400;color:var(--muted);padding:5px 7px;border:1px solid var(--line);border-radius:5px;margin-left:8px;white-space:nowrap;}
+.app-shell .portfolio-dashboard .list-view-label .menu-icon {width:11px;height:11px;}
+.app-shell .portfolio-dashboard .board-subtitle {font-size: 14px;margin-top:9px;}
+.app-shell .availability-panel>.room-status-tabs {margin:20px 23px 0;padding-bottom:13px;}
+.app-shell .portfolio-dashboard .availability-panel>.room-filters {margin:0;padding:17px 23px 19px;background:var(--workspace-surface);}
+.app-shell .portfolio-dashboard .room-filters label {font-size: 13px;letter-spacing:.1px;}
+.app-shell .portfolio-dashboard .room-filters input,.app-shell .portfolio-dashboard .room-filters select {min-height:36px;border-radius:8px;}
+.app-shell .portfolio-dashboard .room-filters button {min-height:36px;padding:9px 18px;}
+.app-shell .portfolio-dashboard .admin-room-list {width:100%;max-height:570px;overflow:auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;margin:0;scrollbar-width:thin;scrollbar-color:var(--line) transparent;}
+.room-directory {width:100%;border-collapse:collapse;min-width:740px;}
+.directory-caption {position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden;white-space:nowrap;}
+.app-shell .portfolio-dashboard .room-directory thead {position:sticky;top:0;z-index:1;background:var(--workspace-soft);}
+.app-shell .portfolio-dashboard .room-directory thead th {background:var(--workspace-soft);padding:13px 17px;font-size: 12px;letter-spacing:.6px;text-transform:uppercase;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);white-space:nowrap;text-align:left;}
+.app-shell .portfolio-dashboard .room-directory thead th:first-child {padding-left:23px;}
+.app-shell .portfolio-dashboard .room-directory tbody td,.app-shell .portfolio-dashboard .room-directory tbody th {padding:15px 17px;border-bottom:1px solid var(--line);font-size: 15px;letter-spacing:0;text-transform:none;background:transparent;color:var(--ink);font-weight:400;}
+.app-shell .portfolio-dashboard .room-directory tbody th {padding-left:23px;text-align:left;}
+.app-shell .portfolio-dashboard .room-directory tr:last-child td,.app-shell .portfolio-dashboard .room-directory tr:last-child th {border-bottom:0;}
+.directory-row:hover {background:var(--workspace-soft);}
+.directory-room {display:flex;align-items:center;gap:12px;min-width:155px;}
+.directory-thumbnail {width:44px;height:44px;min-width:44px;overflow:hidden;display:grid;place-items:center;background:var(--workspace-soft);border:1px solid var(--line);border-radius:10px;color:var(--muted);}
+.directory-thumbnail img {width:100%;height:100%;object-fit:cover;}
+.directory-thumbnail>.menu-icon {width:20px;height:20px;stroke-width:1.3;}
+.directory-room a {font-size: 16px;font-weight:600;letter-spacing:-.3px;color:var(--ink);}
+.directory-room a:hover {color:var(--workspace-accent);text-decoration:underline;}
+.directory-room small {display:block;font-size: 13px;color:var(--muted);margin-top:6px;white-space:nowrap;}
+.directory-room small span {margin:0 3px;opacity:.7;}
+.directory-property {font-size: 14px;font-weight:500;display:block;line-height:1.5;}
+.directory-floor {font-size: 13px;display:block;color:var(--muted);margin-top:5px;line-height:1.4;}
+.directory-status {display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:6px 9px;white-space:nowrap;font-size: 12px;color:var(--muted);background:var(--workspace-soft);}
+.directory-status i {height:4px;width:4px;flex-shrink:0;border-radius:50%;background:currentColor;}
+.directory-vacant {background:#edf4e9;color:#7b9867;}
+.directory-occupied {background:#edf3f7;color:#779bb0;}
+.directory-reserved {background:#faf3e5;color:#b49861;}
+.directory-maintenance {background:#f7eeea;color:#b5917d;}
+.app-shell .portfolio-dashboard .room-directory .numeric {text-align:right;font-variant-numeric:tabular-nums;}
+.directory-price {font-size: 15px;letter-spacing:-.2px;font-weight:600;}
+.directory-period {display:block;font-size: 12px;color:var(--muted);margin-top:5px;}
+.app-shell .portfolio-dashboard .room-directory .directory-deposit {font-size: 15px;color:var(--muted);}
+.app-shell .portfolio-dashboard .room-directory .room-action-heading {text-align:right;padding-right:23px;}
+.app-shell .portfolio-dashboard .room-directory .directory-action {text-align:right;padding-right:23px;white-space:nowrap;}
+.directory-open {display:inline-flex;align-items:center;justify-content:center;gap:12px;font-size: 13px;font-weight:500;color:var(--workspace-accent);background:var(--workspace-surface);border:1px solid var(--line);border-radius:7px;padding:8px 10px;min-height:32px;}
+.directory-open span {font-size: 15px;color:var(--muted);}
+.directory-open:hover {border-color:var(--workspace-accent);}
+.app-shell .portfolio-dashboard .directory-footer {padding:15px 23px;margin:0;font-size: 13px;background:var(--workspace-surface);}
+.directory-footer>span:last-child {display:flex;align-items:center;gap:7px;}
+.directory-live-dot {width:4px;height:4px;border-radius:50%;background:#8dad77;}
+.directory-empty {text-align:center;padding:35px 20px;color:var(--muted);}
+.directory-empty>.menu-icon {height:32px;width:32px;color:var(--muted);margin-bottom:12px;}
+.directory-empty h3 {font-size: 18px;color:var(--ink);margin:0 0 9px;}
+.directory-empty p {font-size: 15px;margin:0 0 14px;}
+.directory-empty a {font-size: 15px;}
+[data-theme=dark] .directory-vacant {background:#2a3d2c;color:#adca99;}
+[data-theme=dark] .directory-occupied {background:#293b46;color:#b0cada;}
+[data-theme=dark] .directory-reserved {background:#413b2c;color:#d8c496;}
+[data-theme=dark] .directory-maintenance {background:#41332c;color:#d5b6a2;}
+@media(max-width:900px){.app-shell .admin-overview-heading{padding:22px;}.app-shell .admin-overview-heading h1{font-size: 29px;}.list-view-label{margin-left:3px;}}
+@media(max-width:650px){.app-shell .admin-overview-heading{padding:20px;margin-bottom:16px;}.app-shell .admin-overview-heading h1{font-size: 30px;}.app-shell .admin-overview-heading .muted{font-size: 14px;line-height:1.8;}.app-shell .admin-kpis article{padding:15px;}.app-shell .admin-kpis strong{font-size: 30px;}.app-shell .admin-kpis .kpi-top p{font-size: 13px;}.app-shell .portfolio-dashboard .availability-panel{padding:0;}.app-shell .availability-panel>.section-title{padding:19px 16px 0;gap:8px;}.app-shell .portfolio-dashboard .section-title h2{font-size: 17px;}.list-view-label{display:none;}.app-shell .availability-panel>.room-status-tabs{margin:17px 16px 0;}.app-shell .portfolio-dashboard .availability-panel>.room-filters{padding:15px 16px 18px;}.app-shell .portfolio-dashboard .directory-footer{padding:13px 16px;}.directory-footer>span:last-child{display:none;}.app-shell .portfolio-dashboard .admin-room-list{max-height:480px;}.app-shell .portfolio-dashboard .room-directory tbody td,.app-shell .portfolio-dashboard .room-directory tbody th{padding:12px 14px;}.app-shell .portfolio-dashboard .room-directory tbody th{padding-left:16px;}}
+
+/* Readable typography and a quieter dashboard hierarchy. */
+.app-shell .admin-overview-heading {background:transparent;border:0;border-radius:0;padding:4px 0 8px;box-shadow:none;}
+.admin-overview-heading:before {display:none;}
+.app-shell .admin-overview-heading .eyebrow {display:none;}
+.app-shell .admin-overview-heading h1 {font-size:34px;letter-spacing:-1.1px;line-height:1.25;margin-bottom:10px;}
+.app-shell .admin-overview-heading .muted {font-size:15px;line-height:1.7;}
+.app-shell .essential-sidebar .brand small {font-size:8px;letter-spacing:.8px;}
+.app-shell .essential-sidebar .nav {min-height:46px;font-size:14px;line-height:1.5;}
+.app-shell .essential-sidebar .menu-caption {font-size:10px;letter-spacing:1px;}
+.app-shell .essential-sidebar .brand {font-size:30px;}
+.app-shell .admin-kpis article {padding:23px 22px;border-radius:12px;box-shadow:none;}
+.app-shell .admin-kpis .kpi-top p {font-size:14px;color:var(--ink);}
+.app-shell .admin-kpis strong {font-size:37px;font-weight:600;}
+.app-shell .admin-kpis small {font-size:13px;line-height:1.6;margin-top:10px;}
+.app-shell .daily-heading h2 {font-size:18px;}
+.daily-heading p {font-size:13px;line-height:1.6;}
+.daily-work {padding:22px;}
+.daily-heading {margin-bottom:20px;}
+.daily-actions>a {padding:16px 13px;gap:10px;}
+.daily-actions strong {font-size:14px;}
+.daily-actions p {font-size:12px;line-height:1.6;}
+.daily-count {width:28px;min-width:28px;height:28px;font-size:13px;}
+.review-total {font-size:12px;padding:7px 9px;}
+.app-shell .portfolio-dashboard .section-title h2 {font-size:20px;line-height:1.5;}
+.app-shell .portfolio-dashboard .board-subtitle {font-size:13px;line-height:1.6;}
+.portfolio-dashboard .section-title>a {font-size:13px;}
+.list-view-label {display:none;}
+.room-status-tabs a {font-size:13px;min-height:40px;}
+.room-status-tabs span {font-size:11px;min-width:22px;}
+.app-shell .portfolio-dashboard .room-filters label {font-size:13px;}
+.app-shell .portfolio-dashboard .room-filters input,.app-shell .portfolio-dashboard .room-filters select {font-size:14px;min-height:43px;}
+.app-shell .portfolio-dashboard .room-filters button {font-size:14px;min-height:43px;padding:10px 19px;}
+.room-directory {min-width:900px;}
+.app-shell .portfolio-dashboard .room-directory thead th {font-size:12px;text-transform:none;letter-spacing:.1px;padding-top:15px;padding-bottom:15px;}
+.app-shell .portfolio-dashboard .room-directory tbody th,.app-shell .portfolio-dashboard .room-directory tbody td {font-size:14px;padding-top:17px;padding-bottom:17px;}
+.directory-room a {font-size:16px;}
+.directory-room small {font-size:12px;line-height:1.5;}
+.directory-property {font-size:14px;}
+.directory-floor {font-size:12px;line-height:1.5;}
+.directory-status {font-size:12px;padding:7px 10px;}
+.directory-price {font-size:15px;}
+.directory-period {font-size:12px;}
+.app-shell .portfolio-dashboard .room-directory .directory-deposit {font-size:14px;}
+.directory-open {font-size:13px;min-height:39px;gap:10px;}
+.directory-thumbnail {width:48px;height:48px;min-width:48px;}
+.app-shell .portfolio-dashboard .admin-room-list {max-height:630px;}
+.app-shell .portfolio-dashboard .directory-footer {font-size:12px;padding-top:18px;padding-bottom:18px;}
+.app-shell .portfolio-dashboard .dashboard-finance td {font-size:14px;padding-top:15px;padding-bottom:15px;}
+.app-shell .portfolio-dashboard .dashboard-finance th {font-size:12px;text-transform:none;letter-spacing:0;}
+.app-shell .portfolio-dashboard .dashboard-finance .muted {font-size:13px;}
+.app-shell .portfolio-dashboard .dashboard-finance .badge {font-size:12px;}
+@media(max-width:1250px){.daily-actions{grid-template-columns:1fr;}.daily-actions p{display:inline;margin-left:8px;}.daily-actions>a{padding:13px;}.app-shell .admin-kpis article{padding:18px;}.app-shell .admin-kpis strong{font-size:32px;}}
+@media(max-width:900px){.app-shell .admin-overview-heading h1{font-size:30px;}.daily-actions p{display:block;margin:4px 0 0;}}
+@media(max-width:650px){.app-shell .essential-sidebar .nav{font-size:13px;min-height:43px;}.app-shell .essential-sidebar .brand{font-size:28px;}.app-shell .admin-overview-heading{padding:2px 0 5px;}.app-shell .admin-overview-heading h1{font-size:29px;}.app-shell .admin-overview-heading .muted{font-size:14px;}.app-shell .admin-kpis article{padding:15px;}.app-shell .admin-kpis .kpi-top p{font-size:12px;line-height:1.5;}.app-shell .admin-kpis strong{font-size:29px;}.app-shell .admin-kpis small{font-size:12px;}.app-shell .daily-heading h2{font-size:17px;}.daily-heading p{font-size:12px;}.daily-work{padding:17px;}.daily-actions>a{padding:13px 10px;}.daily-actions strong{font-size:14px;}.daily-actions p{font-size:12px;}.review-total{font-size:11px;}.app-shell .portfolio-dashboard .section-title h2{font-size:18px;}.portfolio-dashboard .section-title>a{font-size:12px;}.app-shell .portfolio-dashboard .board-subtitle{font-size:12px;}.room-status-tabs a{font-size:12px;}.app-shell .portfolio-dashboard .admin-room-list{max-height:520px;}.app-shell .admin-tools>summary{font-size:12px;}.app-shell .essential-sidebar .brand small{font-size:8px;}}
+
+.portfolio-dashboard .section-title > a { white-space: nowrap; }
+
+.records-heading-actions {display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.floor-setup-button {display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--workspace-surface);color:var(--workspace-accent);min-height:39px;font-size:14px;}
+.floor-setup-button:hover {background:var(--workspace-soft);}
+.floor-setup-button .menu-icon {height:18px;width:18px;}
+@media(max-width:650px){.records-heading-actions{width:100%;}.floor-setup-button{min-height:42px;}}
+
+/* Settings opens its own navigation instead of leaving the current page. */
+.sidebar-settings-group {margin-top:4px;}
+.sidebar-settings-group>summary {list-style:none;cursor:pointer;display:flex;align-items:center;}
+.sidebar-settings-group>summary::-webkit-details-marker {display:none;}
+.app-shell .essential-sidebar .sidebar-settings-group>summary.settings-active {background:var(--workspace-soft);color:var(--workspace-accent);font-weight:600;}
+.settings-menu-chevron {width:15px;height:15px;margin-left:auto;transition:transform .15s;}
+.sidebar-settings-group[open]>summary .settings-menu-chevron {transform:rotate(90deg);}
+.settings-submenu {margin:7px 0 12px 20px;padding-left:11px;border-left:1px solid var(--line);}
+.app-shell .essential-sidebar .settings-submenu-link {min-height:40px;font-size:13px;padding:9px 10px;gap:9px;}
+.app-shell .essential-sidebar .settings-submenu-link .menu-icon {width:16px;height:16px;}
+body:has(#utility-prices:target) [data-settings-link="utility-prices"],body:has(#role-permissions:target) [data-settings-link="role-permissions"] {background:var(--workspace-soft);color:var(--workspace-accent);font-weight:600;}
+@media(max-width:650px){.app-shell .essential-sidebar nav{align-items:flex-start;}.sidebar-settings-group{flex-shrink:0;min-width:170px;margin-top:0;}.settings-submenu{margin-left:15px;margin-bottom:6px;}.app-shell .essential-sidebar .settings-submenu-link{font-size:13px;min-height:39px;}.app-shell .essential-sidebar .sidebar-settings-group>summary{margin:0;}}
+@media(prefers-reduced-motion:reduce){.settings-menu-chevron{transition:none;}}
+
+/* Give longer navigation labels more room without shrinking their text. */
+@media (min-width: 651px) {
+    .app-shell {
+        --admin-sidebar-width: 272px;
+    }
+
+    .app-shell .essential-sidebar {
+        width: var(--admin-sidebar-width);
+    }
+
+    .app-shell > main {
+        margin-left: var(--admin-sidebar-width);
+    }
+
+    .app-shell .essential-sidebar .nav > span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (min-width: 651px) and (max-width: 1100px) {
+    .app-shell {
+        --admin-sidebar-width: 252px;
+    }
+}
+
+.app-shell .customer-record-form {grid-template-columns:repeat(2,minmax(0,1fr));max-width:900px;}
+@media(max-width:650px){.app-shell .customer-record-form{grid-template-columns:1fr;}}
+
+@media(max-width:650px){.app-shell main>header{height:auto;min-height:60px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px;row-gap:10px;}.app-shell main>header>div{margin-left:auto;}}

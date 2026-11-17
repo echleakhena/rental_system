@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="eyebrow">DECISION SUPPORT</div>
+  <h1>Pricing simulator</h1>
+  <p class="muted">Estimate monthly revenue and income using your own assumptions.</p>
+  <div class="two-col">
+    <form class="panel form-grid">
+      <label>
+        Monthly rent ($)
+        <input name="rent" type="number" min="0" step="0.01" value="{{ rent }}">
+      </label>
+      <label>
+        Number of rooms
+        <input name="rooms" type="number" min="0" value="{{ count }}">
+      </label>
+      <label>
+        Occupancy (%)
+        <input name="occupancy"
+               type="number"
+               min="0"
+               max="100"
+               step="0.1"
+               value="{{ occupancy }}">
+      </label>
+      <label>
+        Monthly expenses ($)
+        <input name="cost" type="number" min="0" step="0.01" value="{{ cost }}">
+      </label>
+      <button class="primary">Calculate scenario ↗</button>
+    </form>
+    <section class="panel projection">
+      <p>Estimated monthly rental income</p>
+      <strong>${{ '%.2f'|format(revenue) }}</strong>
+      <hr>
+      <p>After estimated expenses</p>
+      <h2>${{ '%.2f'|format(revenue-cost) }}</h2>
+      <small>Rent × rooms × occupancy − expenses</small>
+    </section>
+  </div>
+{% endblock %}

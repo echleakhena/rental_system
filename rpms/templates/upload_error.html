@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+  <section class="panel">
+    <h1>Upload is too large</h1>
+    <p class="muted">Upload up to four photos, no larger than 5 MB each.</p>
+    <a href="{{ url_for('main.records',table='rooms') }}">Back to rooms →</a>
+  </section>
+{% endblock %}

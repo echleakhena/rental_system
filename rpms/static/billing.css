@@ -1,0 +1,140 @@
+/* A single readable workspace for rent, meter readings and monthly invoices. */
+.billing-workspace {max-width:1450px;color:var(--ink);min-width:0;}
+.billing-heading {display:flex;align-items:center;justify-content:space-between;gap:20px;margin:4px 0 27px;}
+.billing-eyebrow {font-size:10px;font-weight:600;letter-spacing:1.6px;color:var(--muted);margin:0 0 10px;}
+.app-shell .billing-heading h1 {font-size:34px;letter-spacing:-1px;margin:0 0 10px;line-height:1.3;}
+.billing-heading>div>p:last-child {font-size:15px;color:var(--muted);margin:0;line-height:1.8;}
+.app-shell :is(.billing-workspace,.invoice-document) :is(.bill-primary,.bill-outline) {display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:11px 14px;font:500 13px 'DM Sans',system-ui;line-height:1.5;border:1px solid var(--line);border-radius:8px;white-space:nowrap;cursor:pointer;}
+.app-shell :is(.billing-workspace,.invoice-document) .bill-primary {background:#2b665b;border-color:#2b665b;color:white;}
+.app-shell :is(.billing-workspace,.invoice-document) .bill-outline {background:var(--workspace-surface);color:var(--workspace-accent);}
+.bill-primary svg,.bill-outline svg {height:16px;width:16px;}
+.bill-panel {background:var(--workspace-surface);border:1px solid var(--line);border-radius:14px;margin-bottom:25px;overflow:hidden;min-width:0;scroll-margin-top:20px;}
+.bill-section-heading {display:flex;align-items:center;justify-content:space-between;gap:20px;padding:23px;}
+.app-shell .bill-section-heading h2 {font-size:20px;letter-spacing:-.4px;line-height:1.5;margin:0 0 7px;}
+.bill-section-heading h2>span {font-size:11px;padding:4px 7px;background:var(--workspace-soft);color:var(--muted);border-radius:5px;vertical-align:middle;margin-left:7px;}
+.bill-section-heading p {font-size:13px;line-height:1.8;color:var(--muted);margin:0;}
+.bill-section-heading>a {font-size:13px;white-space:nowrap;color:var(--workspace-accent);}
+.bill-step {font-size:10px;letter-spacing:1px;color:var(--muted);font-weight:500;white-space:nowrap;}
+.bill-selection {display:grid;grid-template-columns:minmax(0,1fr) 190px auto;gap:15px;align-items:end;padding:0 23px 24px;}
+.app-shell .billing-workspace label {font-size:12px;line-height:1.6;display:block;color:var(--ink);}
+.app-shell .billing-workspace :is(select,input:not([type=hidden])) {font-size:14px;min-height:43px;padding:10px 11px;border:1px solid var(--line);border-radius:8px;width:100%;margin-top:8px;background:var(--workspace-surface);color:var(--ink);min-width:0;}
+.bill-rental-strip {display:flex;align-items:center;justify-content:space-between;gap:20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:17px 23px;background:var(--workspace-soft);}
+.bill-rental-strip>div {display:flex;align-items:center;gap:12px;}
+.bill-room-icon {display:grid;place-items:center;width:36px;height:36px;min-width:36px;border:1px solid var(--line);border-radius:10px;color:var(--muted);background:var(--workspace-surface);}
+.bill-room-icon svg {height:20px;width:20px;}
+.bill-rental-strip strong {font-size:15px;}
+.bill-rental-strip p {font-size:13px;color:var(--muted);line-height:1.6;margin:5px 0 0;}
+.bill-rental-strip a {font-size:12px;color:var(--workspace-accent);white-space:nowrap;}
+.bill-state {display:inline-block;font-size:11px;line-height:1.5;white-space:nowrap;padding:5px 8px;border-radius:6px;background:var(--workspace-soft);color:var(--muted);border:1px solid var(--line);}
+.state-draft {background:#faf3e5;color:#ac925c;border-color:#eee2c6;}
+.state-approved,.state-billed {background:#edf4e7;color:#78966a;border-color:#e1ead8;}
+.bill-table-wrap {width:100%;overflow:auto;max-height:550px;border-top:1px solid var(--line);min-width:0;scrollbar-width:thin;}
+.bill-table {border-collapse:collapse;width:100%;min-width:850px;}
+.app-shell .billing-workspace .bill-table thead th {background:var(--workspace-soft);font-size:11px;color:var(--muted);text-align:left;font-weight:500;text-transform:none;letter-spacing:0;padding:14px 19px;border-bottom:1px solid var(--line);white-space:nowrap;}
+.app-shell .billing-workspace .bill-table tbody th,.app-shell .billing-workspace .bill-table tbody td {background:transparent;font-size:13px;text-align:left;text-transform:none;letter-spacing:0;padding:17px 19px;vertical-align:middle;border-bottom:1px solid var(--line);font-weight:400;color:var(--ink);}
+.bill-table tr:last-child>td,.bill-table tr:last-child>th {border-bottom:0;}
+.bill-table strong {font-size:14px;font-weight:500;}
+.bill-table small {display:block;color:var(--muted);font-size:11px;line-height:1.6;margin-top:5px;}
+.bill-table a {font-size:12px;white-space:nowrap;color:var(--workspace-accent);}
+.bill-small-link {display:block;margin:8px 0;}
+.bill-reading-actions {display:flex;align-items:center;gap:10px;margin-top:9px;}
+.bill-reading-actions form {margin:0;}
+.app-shell .billing-workspace .bill-approve {background:var(--workspace-soft);border:1px solid var(--line);font-size:12px;color:var(--workspace-accent);border-radius:6px;min-height:34px;}
+.app-shell .billing-workspace .bill-table .bill-table-empty {text-align:center;padding:30px 20px;color:var(--muted);font-size:13px;line-height:1.8;}
+.bill-entry {border-top:1px solid var(--line);scroll-margin-top:20px;}
+.bill-entry>summary {display:flex;align-items:center;justify-content:space-between;gap:20px;list-style:none;cursor:pointer;padding:17px 23px;color:var(--workspace-accent);font-size:14px;background:var(--workspace-soft);}
+.bill-entry>summary>span {display:flex;align-items:center;gap:9px;}
+.bill-entry>summary svg {height:18px;width:18px;}
+.bill-entry>summary>b {font-weight:400;font-size:19px;}
+.bill-entry[open]>summary>b {transform:rotate(45deg);}
+.bill-entry-content {padding:0 23px 23px;}
+.bill-entry-content>p {font-size:13px;line-height:1.8;color:var(--muted);margin:18px 0;}
+.bill-meter-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px;}
+.bill-meter-form {background:var(--workspace-surface);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0;}
+.bill-meter-title {display:flex;justify-content:space-between;gap:15px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:17px;}
+.bill-meter-title strong {font-size:16px;}
+.bill-meter-title>span {font-size:12px;color:var(--muted);}
+.bill-meter-values {display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:15px;}
+.bill-meter-form form>small {font-size:11px;color:var(--muted);display:block;line-height:1.8;margin:12px 0 16px;}
+.bill-pending-reading {font-size:13px;line-height:1.8;color:var(--muted);}
+.bill-empty-meters {padding:25px 23px;text-align:center;grid-column:1/-1;}
+.bill-empty-meters p {font-size:14px;color:var(--muted);line-height:1.8;}
+.bill-empty-meters a {font-size:13px;}
+.bill-calculation {display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:30px;padding:25px 23px;border-top:1px solid var(--line);background:var(--workspace-soft);}
+.app-shell .bill-calculation h2 {font-size:23px;letter-spacing:-.5px;line-height:1.5;margin:13px 0;}
+.bill-calculation-info>p {font-size:14px;line-height:1.9;color:var(--muted);max-width:470px;margin:0;}
+.bill-total-card {border:1px solid var(--line);border-radius:12px;padding:21px;background:var(--workspace-surface);}
+.bill-total-card>div {display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:14px;margin-bottom:16px;}
+.bill-total-card>div>span {color:var(--muted);}
+.bill-total-card strong {font-weight:500;font-size:15px;white-space:nowrap;}
+.bill-total-card>.bill-grand-total {border-top:1px solid var(--line);padding-top:17px;margin:0 0 20px;}
+.bill-grand-total>span {font-size:14px;color:var(--ink);}
+.bill-grand-total>strong {font-size:26px;font-weight:600;letter-spacing:-.8px;}
+.bill-total-card .bill-primary {width:100%;white-space:normal!important;text-align:center;}
+.app-shell .billing-workspace .bill-primary:disabled {opacity:.45;cursor:not-allowed;}
+.bill-notice {padding:13px 16px;font-size:13px;line-height:1.8;border:1px solid #e8dcbe;background:#faf4e7;color:#a18a59;border-radius:8px;margin:16px 23px;}
+.bill-calculation .bill-notice {margin:18px 0 0;max-width:470px;}
+.bill-history-search {display:flex;gap:10px;padding:0 23px 22px;max-width:540px;position:relative;}
+.app-shell .billing-workspace .bill-history-search input {margin:0;}
+.bill-pagination {padding:16px 23px;font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:var(--muted);}
+.bill-sr-only {position:absolute;left:0;top:0;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden;white-space:nowrap;}
+.invoice-heading-actions {display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.invoice-share-note {font-size:13px;color:var(--muted);line-height:1.8;margin:0 0 20px;}
+.invoice-reading-unit {display:block;color:var(--muted);font-size:11px;line-height:1.6;margin-top:5px;}
+.app-shell .invoice-document .table-wrap table {min-width:650px;}
+.app-shell .invoice-document th {font-size:12px;text-transform:none;letter-spacing:0;}
+.app-shell .invoice-document td {font-size:14px;}
+[data-theme=dark] .state-draft,[data-theme=dark] .bill-notice {background:#403828;border-color:#584b32;color:#d4be8c;}
+[data-theme=dark] .state-approved,[data-theme=dark] .state-billed {background:#2e402c;color:#b0c999;border-color:#3d5037;}
+[data-theme=dark] .app-shell :is(.billing-workspace,.invoice-document) .bill-primary {background:#91cbb4;border-color:#91cbb4;color:#183b2e;}
+@media(max-width:1100px){.bill-selection{grid-template-columns:minmax(0,1fr) 180px;}.bill-selection>.bill-primary{grid-column:1/-1;justify-self:start;}.bill-calculation{grid-template-columns:1fr;gap:23px;}.bill-total-card{max-width:none;}}
+@media(max-width:650px){.billing-heading{align-items:flex-start;flex-direction:column;gap:17px;margin-bottom:22px;}.app-shell .billing-heading h1{font-size:29px;}.billing-heading>div>p:last-child{font-size:14px;}.bill-section-heading{padding:20px 16px;align-items:flex-start;}.app-shell .bill-section-heading h2{font-size:18px;}.bill-section-heading p{font-size:12px;}.bill-section-heading>.bill-step{display:none;}.bill-selection{grid-template-columns:1fr;padding:0 16px 20px;}.bill-selection>.bill-primary{width:100%;}.bill-rental-strip{padding:16px;flex-wrap:wrap;gap:15px;}.bill-rental-strip>div:last-child{width:100%;justify-content:space-between;}.bill-meter-grid{grid-template-columns:1fr;}.bill-entry>summary{padding:16px;font-size:13px;}.bill-entry-content{padding:0 16px 18px;}.bill-meter-form{padding:17px;}.bill-meter-title>span{font-size:11px;}.bill-meter-values{gap:10px;}.bill-calculation{padding:22px 16px;gap:20px;}.app-shell .bill-calculation h2{font-size:21px;}.bill-calculation-info>p{font-size:13px;}.bill-total-card{padding:18px;}.bill-notice{margin:15px 16px;}.bill-history-search{padding:0 16px 19px;}.bill-pagination{padding:15px 16px;}.invoice-heading-actions{gap:8px;}.app-shell .invoice-document .heading h1{font-size:21px;}.invoice-document .heading{align-items:flex-start;flex-direction:column;}}
+@media print{.sidebar,main>header,.invoice-heading-actions,.invoice-share-note,.invoice-document form,.invoice-document .invoice-layout>.panel:has(form),.flash{display:none!important;}body,body.app-shell{background:white!important;color:black!important;}.app-shell>main{margin:0!important;}.app-shell .content{padding:0!important;}.invoice-document .invoice-layout{display:block;}.invoice-document .panel{background:white!important;border:1px solid #ddd!important;color:black!important;}.invoice-document .table-wrap{overflow:visible;max-height:none;}.invoice-document .table-wrap table{min-width:0!important;width:100%;}.invoice-document :is(td,th){color:black!important;font-size:11px!important;padding:10px!important;}.invoice-document .heading{display:block;}.invoice-document .totals{color:black!important;}}
+
+.invoice-document-brand {font-size:22px;font-weight:700;color:var(--workspace-accent);letter-spacing:-.6px;margin:0 0 22px;}
+.invoice-document-brand>span {font-size:10px;font-weight:500;letter-spacing:1.3px;color:var(--muted);margin-left:13px;}
+.invoice-recipient {display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:20px;border:1px solid var(--line);border-radius:12px;padding:22px;background:var(--workspace-surface);margin:0 0 23px;}
+.invoice-recipient>div>span {font-size:10px;letter-spacing:.8px;color:var(--muted);display:block;}
+.invoice-recipient strong {font-size:15px;line-height:1.6;display:block;margin-top:9px;}
+.invoice-recipient small {font-size:12px;color:var(--muted);display:block;margin-top:6px;line-height:1.6;}
+@media(max-width:650px){.invoice-recipient{grid-template-columns:1fr 1fr;padding:18px;gap:20px 15px;}.invoice-recipient>div:first-child{grid-column:1/-1;}.invoice-recipient strong{font-size:14px;}}
+@media print{.invoice-document{--ink:#111;--muted:#555;--line:#ddd;--teal:#222;color:#111;}.invoice-recipient{background:#fff!important;border-color:#ddd!important;}.invoice-recipient :is(strong,small,span){color:#222!important;}.invoice-document :is(th,td){background:white!important;}}
+
+/* Keep each customer's rent, utilities and payable total on the same row. */
+.customer-bill-summary {border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--workspace-soft);}
+.customer-bill-heading {display:flex;align-items:center;justify-content:space-between;gap:18px;padding:21px 23px;}
+.app-shell .customer-bill-heading h2 {font-size:19px;margin:0 0 6px;letter-spacing:-.3px;}
+.customer-bill-heading p {font-size:13px;line-height:1.7;color:var(--muted);margin:0;}
+.customer-bill-heading>a {font-size:12px;white-space:nowrap;color:var(--workspace-accent);}
+.customer-total-table {min-width:850px;}
+.app-shell .billing-workspace .customer-total-table tbody :is(td,th) {padding-top:21px;padding-bottom:21px;}
+.customer-total-table tbody strong {font-size:17px;font-weight:600;}
+.customer-total-table .customer-total-amount strong {font-size:26px;letter-spacing:-.8px;color:var(--workspace-accent);}
+.customer-total-table .customer-total-amount {background:color-mix(in srgb,var(--workspace-accent) 5%,transparent)!important;}
+.customer-total-explanation {font-size:12px;line-height:1.8;color:var(--muted);padding:14px 23px;margin:0;border-top:1px solid var(--line);}
+.history-total-amount strong {color:var(--workspace-accent);font-weight:600;font-size:15px;}
+#invoice-total {scroll-margin-top:22px;}
+@media(max-width:650px){.customer-bill-heading{padding:19px 16px;}.app-shell .customer-bill-heading h2{font-size:18px;}.customer-bill-heading p{font-size:12px;}.customer-bill-heading>a{font-size:12px;}.customer-total-explanation{padding:13px 16px;font-size:12px;}}
+
+@media(max-width:650px){
+  .customer-bill-summary{position:relative;}
+  .customer-total-table{display:block;min-width:0;width:100%;}
+  .customer-total-table thead{position:absolute;left:0;top:0;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden;}
+  .customer-total-table tbody{display:block;}
+  .customer-total-table tbody tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:0 16px;}
+  .customer-total-table.has-other-charges tbody tr{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .app-shell .billing-workspace .customer-total-table tbody th{grid-column:1/-1;padding:17px 0;text-align:left;border:0;}
+  .app-shell .billing-workspace .customer-total-table tbody td{padding:14px 7px;border-top:1px solid var(--line);border-bottom:0;min-width:0;}
+  .customer-total-table td[data-label]:before{content:attr(data-label);display:block;font-size:11px;line-height:1.6;color:var(--muted);margin-bottom:8px;}
+  .customer-total-table tbody strong{font-size:18px;letter-spacing:-.3px;}
+  .customer-total-table tbody th strong{font-size:16px;}
+  .customer-total-table .customer-total-amount strong{font-size:22px;letter-spacing:-.7px;}
+  .customer-total-table td small{font-size:10px;line-height:1.7;}
+  .customer-total-table tbody td:last-child{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 0;}
+  .customer-total-table tbody td:last-child small{font-size:12px;}
+  .customer-total-table .bill-outline{font-size:12px;}
+}
+
+.invoice-preparation[hidden] {display:none!important;}
+.invoice-preparation .bill-selection {padding-top:23px;}
+@media(max-width:650px){.invoice-preparation .bill-selection{padding-top:20px;}}

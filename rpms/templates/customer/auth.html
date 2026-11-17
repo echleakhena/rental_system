@@ -1,0 +1,50 @@
+{% extends 'customer/base.html' %}
+{% block content %}
+  <div class="auth-intro">
+    <span class="intro-icon">{{ symbol("home") }}</span>
+    <p class="eyebrow">YOUR HOME STARTS HERE</p>
+    <h1>
+      {{ 'Make yourself at home' if registering else 'Welcome home' }}<span class="green">.</span>
+    </h1>
+    <p class="muted">
+      {{ 'A few details, and you’re ready to find your space.' if registering else 'Sign in to manage your everyday.' }}
+    </p>
+  </div>
+  <form method="post" class="card auth-form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+    {% if registering %}
+      <label for="name">Full name</label>
+      <input id="name"
+             name="name"
+             autocomplete="name"
+             placeholder="Your full name"
+             maxlength="150"
+             required
+             value="{{ request.form.get('name', '') }}">
+    {% endif %}
+    <label for="phone">Phone number</label>
+    <input id="phone"
+           name="phone"
+           type="tel"
+           autocomplete="tel"
+           placeholder="e.g. 012 345 678"
+           maxlength="30"
+           required
+           value="{{ request.form.get('phone', '') }}">
+    <label for="password">Password</label>
+    <input id="password"
+           name="password"
+           type="password"
+           autocomplete="{{ 'new-password' if registering else 'current-password' }}"
+           minlength="8"
+           maxlength="128"
+           placeholder="{{ 'At least 8 characters' if registering else 'Your password' }}"
+           required>
+    <button class="button full">
+      {{ 'Create account' if registering else 'Sign in' }} {{ symbol("arrow") }}
+    </button>
+  </form>
+  <p class="auth-switch">
+    {{ 'Already have an account?' if registering else 'New here?' }} <a href="{{ url_for('customer.login') if registering else url_for('customer.register') }}">{{ 'Sign in' if registering else 'Create an account' }}</a>
+  </p>
+{% endblock %}

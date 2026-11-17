@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from 'icons.html' import icon %}
+{% block content %}
+  <section class="panel delete-confirm">
+    <h1>Delete {{ titleize(table) }} record?</h1>
+    <p>
+      Delete <strong>{{ record_label }}</strong>? This cannot be undone.
+    </p>
+    <p class="muted">Records referenced elsewhere cannot be deleted.</p>
+    <form method="post">
+      <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+      <div class="form-footer">
+        <button class="danger-button icon-action">{{ icon("trash") }}Confirm delete</button>
+        <a href="{{ url_for('main.records',table=table) }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

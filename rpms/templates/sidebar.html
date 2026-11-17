@@ -1,0 +1,85 @@
+{% from 'icons.html' import icon %}
+{% set active_table = table if table is defined else 'invoices' if request.path.startswith('/invoices/') else '' %}
+{% set original_table = active_table %}
+{% set related = {
+  "contract_tenants": "rental_contracts",
+  "contract_renewals": "rental_contracts",
+  "move_outs": "rental_contracts",
+  "invoice_items": "invoices",
+  "payments": "invoices",
+  "payment_allocations": "invoices",
+  "utility_meters": "invoices",
+  "meter_readings": "invoices",
+  "room_inspections": "maintenance_requests"
+} %}
+{% set active_table = related.get(active_table,active_table) %}
+<aside class="sidebar essential-sidebar">
+  <a class="brand" href="{{ url_for('main.dashboard') }}"><span class="admin-brand-mark">{{ icon("portfolio") }}</span><span>rpms<span class="admin-brand-dot">.</span><small>MANAGEMENT WORKSPACE</small></span></a>
+  <nav aria-label="Main navigation">
+    <p class="menu-caption">WORKSPACE</p>
+    <a class="nav menu-link {{ 'selected' if request.endpoint=='main.dashboard' }}"
+       href="{{ url_for('main.dashboard') }}"
+       {% if request.endpoint=='main.dashboard' %}aria-current="page"{% endif %}>{{ icon("overview") }}<span>Overview</span></a>
+    {% if can_write %}
+      <a class="nav menu-link {{ 'selected' if request.endpoint=='customer.management' }}"
+         href="{{ url_for('customer.management') }}"
+         {% if request.endpoint=='customer.management' %}aria-current="page"{% endif %}>{{ icon("calendar") }}<span>Customer requests</span></a>
+    {% endif %}
+    <p class="menu-caption nav-section-label">PROPERTY & RESIDENTS</p>
+    {% for name,label,symbol in [('rooms','Rooms','room'),('tenants','Customers','people')] %}
+      <a class="nav menu-link {{ 'selected' if active_table==name or name=='rooms' and request.endpoint=='main.room_detail' }}"
+         href="{{ url_for('main.records',table=name) }}"
+         {% if active_table==name or name=='rooms' and request.endpoint=='main.room_detail' %}aria-current="page"{% endif %}>{{ icon(symbol) }}<span>{{ label }}</span></a>
+    {% endfor %}
+    {% set rentals_active = active_table in ['rental_contracts','invoices'] %}
+    <details class="sidebar-settings-group sidebar-rentals-group" {% if rentals_active %}open{% endif %}>
+      <summary class="nav menu-link {{ 'settings-active' if rentals_active }}">{{ icon('leasing') }}<span>Rentals & payments</span><svg class="settings-menu-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 4 6 6-6 6"/></svg></summary>
+      <div class="settings-submenu">
+        {% for name,label,symbol in [('rental_contracts','Rentals','leasing'),('invoices','Invoices & utilities','invoice'),('payments','Payments','finance')] %}
+          {% set selected = (name=='rental_contracts' and active_table=='rental_contracts') or (name=='invoices' and active_table=='invoices' and original_table!='payments') or (name=='payments' and original_table=='payments') %}
+          <a class="nav settings-submenu-link {{ 'selected' if selected }}" href="{{ url_for('main.records',table=name) }}" {% if selected %}aria-current="page"{% endif %}>{{ icon(symbol) }}<span>{{ label }}</span></a>
+        {% endfor %}
+      </div>
+    </details>
+    <p class="menu-caption nav-section-label">OPERATIONS</p>
+    {% for name,label,symbol in [('maintenance_requests','Maintenance','operations')] %}
+      <a class="nav menu-link {{ 'selected' if active_table==name }}"
+         href="{{ url_for('main.records',table=name) }}"
+         {% if active_table==name %}aria-current="page"{% endif %}>{{ icon(symbol) }}<span>{{ label }}</span></a>
+    {% endfor %}
+    <a class="nav menu-link {{ 'selected' if request.endpoint in ['main.reports','main.mis_dss'] }}"
+       href="{{ url_for('main.reports') }}"
+       {% if request.endpoint=='main.reports' %}aria-current="page"{% endif %}>{{ icon("chart") }}<span>Reports</span></a>
+    {% if can_manage('utility_meters') or can_manage('users') %}
+      {% set settings_active = request.endpoint=='main.settings' or active_table in ['users','roles','permissions','role_permissions','system_settings'] %}
+      <details class="sidebar-settings-group" {% if settings_active %}open{% endif %}>
+        <summary class="nav menu-link {{ 'settings-active' if settings_active }}">{{ icon('settings') }}<span>Settings</span><svg class="settings-menu-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7 4 6 6-6 6"/></svg></summary>
+        <div class="settings-submenu">
+          {% if can_manage('utility_meters') %}<a class="nav settings-submenu-link {{ 'selected' if settings_section is defined and settings_section=='utilities' }}" data-settings-link="utility-prices" href="{{ url_for('main.settings',section='utilities') }}">{{ icon('meter') }}<span>Utility prices</span></a>{% endif %}
+          {% if can_manage('users') %}
+            <a class="nav settings-submenu-link {{ 'selected' if active_table=='users' }}" href="{{ url_for('main.records',table='users') }}" {% if active_table=='users' %}aria-current="page"{% endif %}>{{ icon('people') }}<span>Users</span></a>
+            <a class="nav settings-submenu-link {{ 'selected' if active_table=='roles' }}" href="{{ url_for('main.records',table='roles') }}" {% if active_table=='roles' %}aria-current="page"{% endif %}>{{ icon('administration') }}<span>Roles</span></a>
+            <a class="nav settings-submenu-link {{ 'selected' if active_table in ['permissions','role_permissions'] or settings_section is defined and settings_section=='permissions' }}" data-settings-link="role-permissions" href="{{ url_for('main.settings',section='permissions') }}">{{ icon('key') }}<span>Permissions</span></a>
+          {% endif %}
+        </div>
+      </details>
+    {% endif %}
+  </nav>
+  <div class="sidebar-bottom">
+    <a class="portal-shortcut" href="{{ url_for('customer.home') }}"><span>{{ icon("room") }}</span>
+      <div>
+        <strong>Customer portal</strong><small>Open customer site ↗</small>
+      </div>
+    </a>
+    <div class="sidebar-account">
+      <span class="staff-avatar">{{ current_user.name[:1]|upper }}</span>
+      <div>
+        <strong>{{ current_user.name }}</strong><small>Management account</small>
+      </div>
+      <form action="{{ url_for('main.logout') }}" method="post">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        <button type="submit" aria-label="Sign out" title="Sign out">{{ icon("moveout") }}</button>
+      </form>
+    </div>
+  </div>
+</aside>

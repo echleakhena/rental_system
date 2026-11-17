@@ -1,0 +1,87 @@
+{% extends 'customer/base.html' %}
+{% block content %}
+  <a class="back" href="{{ url_for('customer.rentals') }}">← My rental</a>
+  <p class="eyebrow">YOUR MONTHLY BILL</p>
+  <h1>
+    {{ invoice.billing_period.strftime("%B %Y") }}<span class="green">.</span>
+  </h1>
+  <p class="muted">{{ invoice.invoice_no }} · {{ invoice.status }}</p>
+  <section class="balance-card">
+    <span>Remaining balance</span><strong>${{ '%.2f'|format(invoice.balance_due or 0) }}</strong>
+    <p>Due {{ invoice.due_date }}</p>
+  </section>
+  <section class="card">
+    <h2>Bill details</h2>
+    {% for item in items %}
+      <div class="line-item">
+        <div>
+          <strong>{{ item.description }}</strong>{% set reading = reading_details.get(item.meter_reading_id) %}{% if reading %}<small class="customer-meter-snapshot">Meter: {{ reading.previous }} → {{ reading.current }} {{ reading.unit }}</small>{% endif %}<small>{{ 'Usage ' if reading }}{{ item.quantity }} × ${{ item.unit_price }}</small>
+        </div>
+        <strong>${{ '%.2f'|format(item.amount) }}</strong>
+      </div>
+    {% endfor %}
+    <div class="row total">
+      <strong>Total</strong><strong>${{ '%.2f'|format(invoice.total_amount) }}</strong>
+    </div>
+    <div class="row">
+      <span>Paid</span><strong>${{ '%.2f'|format(invoice.paid_amount or 0) }}</strong>
+    </div>
+  </section>
+  {% if invoice.balance_due > 0 %}
+    <section class="card">
+      <h2>Pay by QR</h2>
+      {% if qr %}
+        <p class="muted">Scan with your banking app. Check the recipient and enter your payment amount.</p>
+        <img class="payment-qr"
+             src="{{ url_for('customer.payment_qr') }}"
+             alt="Management bank payment QR">
+        <a class="download-link"
+           href="{{ url_for('customer.payment_qr') }}"
+           download="rental-payment-qr.jpg">Save QR image</a>
+        {% if proofs|selectattr('status','equalto','Pending')|list %}
+          <div class="notice">Your payment proof is awaiting confirmation.</div>
+        {% else %}
+          <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+            <label for="amount">Amount paid ($)</label>
+            <input id="amount"
+                   name="amount"
+                   type="number"
+                   min="0.01"
+                   step="0.01"
+                   max="{{ invoice.balance_due }}"
+                   value="{{ invoice.balance_due }}"
+                   inputmode="decimal"
+                   required>
+            <label for="reference">Bank transaction reference</label>
+            <input id="reference" name="reference" maxlength="100" required>
+            <label for="proof">Payment screenshot</label>
+            <input id="proof"
+                   name="photo"
+                   type="file"
+                   accept="image/jpeg,image/png,image/webp"
+                   required>
+            <p class="helper">Your payment is confirmed after management verifies the bank transfer.</p>
+            <button class="button full">I've paid · Send proof</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <p class="empty">Management is setting up QR payments. Please contact them for payment details.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+  {% if proofs %}
+    <section>
+      <h2>Payment updates</h2>
+      {% for proof in proofs %}
+        <div class="card">
+          <div class="row">
+            <strong>${{ '%.2f'|format(proof.amount) }}</strong><span class="status">{{ proof.status }}</span>
+          </div>
+          <p class="muted">{{ proof.reference }}</p>
+          <a href="{{ url_for('customer.evidence',kind='payment',record_id=proof.id) }}">View payment proof</a>
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+{% endblock %}

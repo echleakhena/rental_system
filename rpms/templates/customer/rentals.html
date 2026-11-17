@@ -1,0 +1,159 @@
+{% extends 'customer/base.html' %}
+{% block content %}
+  <p class="eyebrow">EVERYTHING IN ONE PLACE</p>
+  <h1>
+    My rental<span class="green">.</span>
+  </h1>
+  <p class="muted">Your space. Your bills. All taken care of.</p>
+  {% for lease in current %}
+    {% set room = room_by_id(lease.room_id) %}
+    <section class="current-room">
+      <span class="pill">CURRENT HOME</span>
+      <h2>Room {{ room.room_number }}</h2>
+      <p>{{ room_location(room) }}</p>
+      <div class="row">
+        <span>{{ lease.start_date }} — {{ lease.end_date }}</span><strong>${{ '%.0f'|format(lease.monthly_rent) }}<small>/mo</small></strong>
+      </div>
+    </section>
+    <section>
+      <div class="section-heading">
+        <h2 id="utilities">Water & electricity</h2>
+        <span class="count">Meter readings</span>
+      </div>
+      {% for meter in meters if meter.room_id==lease.room_id %}
+        {% set recent = readings|selectattr('meter_id','equalto',meter.id)|list %}
+        <div class="card utility-card">
+          <div class="row">
+            <div class="utility-title">
+              <span class="utility-icon {{ 'blue' if meter.meter_type=='Water' }}">{{ symbol('water' if meter.meter_type=='Water' else 'electric') }}</span>
+              <div>
+                <h3>{{ meter.meter_type }}</h3>
+                <p class="muted">${{ meter.default_rate or 0 }} / {{ meter.unit or 'unit' }}</p>
+              </div>
+            </div>
+            <strong>{{ recent[0].current_reading if recent else '—' }}<small>{{ meter.unit or '' }}</small></strong>
+          </div>
+          {% if recent %}
+            <div class="row reading-info">
+              <span>{{ recent[0].reading_date }}</span><span class="status">{{ 'Awaiting review' if recent[0].status=='Draft' else recent[0].status }}</span>
+            </div>
+          {% endif %}
+          <details>
+            <summary>Submit a new reading {{ symbol("camera") }}</summary>
+            <form action="{{ url_for('customer.submit_reading',lease_id=lease.id) }}"
+                  method="post"
+                  enctype="multipart/form-data">
+              <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+              <input type="hidden" name="meter_id" value="{{ meter.id }}">
+              <label for="reading-{{ meter.id }}">Current meter number</label>
+              <input id="reading-{{ meter.id }}"
+                     type="number"
+                     name="current_reading"
+                     step="0.001"
+                     min="{{ recent[0].current_reading if recent else 0 }}"
+                     inputmode="decimal"
+                     required>
+              <label for="date-{{ meter.id }}">Reading date</label>
+              <input id="date-{{ meter.id }}"
+                     type="date"
+                     name="reading_date"
+                     min="{{ lease.start_date }}"
+                     max="{{ today }}"
+                     value="{{ today }}"
+                     required>
+              <label for="photo-{{ meter.id }}">Photo of the meter</label>
+              <input id="photo-{{ meter.id }}"
+                     type="file"
+                     name="photo"
+                     accept="image/jpeg,image/png,image/webp"
+                     capture="environment"
+                     required>
+              <p class="helper">
+                Up to 5 MB. Management reviews your reading before billing.
+                {% if not recent %}Management will verify the starting meter value.{% endif %}
+              </p>
+              <button class="button full">Send reading</button>
+            </form>
+          </details>
+        </div>
+      {% else %}
+        <div class="empty">Management hasn't added meters for this room yet.</div>
+      {% endfor %}
+    </section>
+  {% else %}
+    <div class="card empty">
+      <span class="empty-icon">{{ symbol("home") }}</span>
+      <h2>Your home is waiting</h2>
+      <p>Your active rental will appear here once your lease begins.</p>
+      <a class="button" href="{{ url_for('customer.rooms') }}">Explore rooms {{ symbol("arrow") }}</a>
+    </div>
+  {% endfor %}
+  <section>
+    <div class="section-heading">
+      <h2 id="bills">Monthly bills</h2>
+      <span class="count">{{ invoices|length }} bills</span>
+    </div>
+    {% for bill in invoices %}
+    <a class="bill-card"
+       href="{{ url_for('customer.invoice',invoice_id=bill.id) }}"><span class="bill-icon">{{ symbol("rentals") }}</span>
+    <div>
+      <strong>{{ bill.billing_period.strftime("%B %Y") }}</strong>
+      <p>
+        Room {{ room_by_id((leases|selectattr('id','equalto',bill.contract_id) |first).room_id).room_number }} · {{ bill.status }}
+      </p>
+    </div>
+    <div class="bill-amount">
+      <strong>${{ '%.2f'|format(bill.balance_due or 0) }}</strong><small>{{ 'Paid' if bill.status=='Paid' else 'Due ' ~ bill.due_date }}</small>
+    </div>
+  </a>
+{% else %}
+  <p class="empty">No bills yet. Issued monthly bills appear here automatically.</p>
+{% endfor %}
+</section>
+<section>
+  <h2>Bookings</h2>
+  {% for booking in bookings %}
+    <div class="card">
+      <div class="row">
+        <h3>Room {{ room_by_id(booking.room_id).room_number }}</h3>
+        <span class="status">{{ booking.status }}</span>
+      </div>
+      <p class="muted">Move-in · {{ booking.expected_move_in }}</p>
+      {% if booking.status=='Pending' %}
+        <p class="helper">Waiting for management to confirm.</p>
+        <form action="{{ url_for('customer.cancel_booking',booking_id=booking.id) }}"
+              method="post">
+          <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+          <button class="text-button">Cancel request</button>
+        </form>
+      {% endif %}
+    </div>
+  {% else %}
+    <p class="empty">Your room booking requests will appear here.</p>
+  {% endfor %}
+</section>
+<details class="history">
+  <summary>Rental & utility history</summary>
+  {% for lease in leases %}
+    <div class="history-row">
+      <strong>Room {{ room_by_id(lease.room_id).room_number }}</strong><span class="status">{{ lease.status }}</span>
+      <p>{{ lease.start_date }} — {{ lease.end_date }}</p>
+    </div>
+  {% endfor %}
+  {% for reading in readings %}
+    <div class="history-row">
+      <div class="row">
+        <strong>{{ reading.reading_date }}</strong><span>{{ reading.status }}</span>
+      </div>
+      <p>
+        Meter #{{ reading.meter_id }} · {{ reading.previous_reading }} → {{ reading.current_reading }} · ${{ reading.total_amount }}
+      </p>
+      {% if reading.photo_path and reading.reading_type=='Customer' %}
+        <a href="{{ url_for('customer.evidence',kind='reading',record_id=reading.id) }}">View meter photo</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <p class="muted">No utility history yet.</p>
+  {% endfor %}
+</details>
+{% endblock %}

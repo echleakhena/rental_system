@@ -1,0 +1,212 @@
+{% extends 'customer/base.html' %}
+{% block content %}
+  <section class="home-welcome">
+    <div>
+      <p class="eyebrow">YOUR NEXT CHAPTER STARTS HERE</p>
+      <h1>
+        {% if tenant %}
+          Hello, {{ tenant.full_name.split()[0] }}<span class="greeting-spark">✳</span>
+        {% else %}
+          Find your happy place<span class="green">.</span>
+        {% endif %}
+      </h1>
+      <p class="muted">
+        {% if tenant %}
+          A little less admin. A lot more living.
+        {% else %}
+          Spaces you'll love. Living made simple.
+        {% endif %}
+      </p>
+    </div>
+  </section>
+  <form class="home-search"
+        action="{{ url_for('customer.rooms') }}"
+        method="get">
+    <span>{{ symbol("search") }}</span>
+    <label class="sr-only" for="home-search">Find your room</label>
+    <input id="home-search" name="q" placeholder="Where would you like to live?">
+    <button aria-label="Search available rooms">{{ symbol("arrow") }}</button>
+  </form>
+  <section class="discovery" aria-label="Featured available rooms">
+    <div class="discovery-track"
+         data-carousel
+         tabindex="0"
+         aria-label="Swipe to explore featured rooms">
+      {% for room in rooms %}
+        <a class="discovery-slide"
+           href="{{ url_for('customer.room',room_id=room.id) }}"
+           aria-label="Explore room {{ room.room_number }}">
+          {% set cover = namespace(shown=false) %}
+          {% for photo in room.photos or [] %}
+            {% if photo and not cover.shown %}
+              <img class="discovery-photo"
+                   src="{{ url_for('customer.room_photo',room_id=room.id,slot=loop.index0) }}"
+                   alt="Interior of room {{ room.room_number }}"
+                   {% if not loop.first %}loading="lazy"{% endif %}>
+              <span class="photo-credit">{{ 'Sample interior' if photo.startswith("demo-") else 'Room ' ~ room.room_number }}</span>{% set cover.shown = true %}
+            {% endif %}
+          {% endfor %}
+          <span class="discovery-shade"></span>
+          <div class="discovery-copy">
+            <span class="featured-label"><span></span> SPACE FOR YOUR EVERYDAY</span>
+            <h2>
+              Good spaces.
+              <br>
+              Better living.
+            </h2>
+            <p>{{ room_location(room) }} · Room {{ room.room_number }}</p>
+            <span class="discovery-cta">Take a look {{ symbol("arrow") }}</span>
+          </div>
+          <span class="hero-price">${{ '%.0f'|format(room.monthly_rent or 0) }}<small>/ month</small></span>
+        </a>
+      {% else %}
+        <div class="discovery-slide no-rooms">
+          <div class="discovery-copy">
+            <span class="featured-label">YOUR NEXT CHAPTER</span>
+            <h2>
+              Make room
+              <br>
+              for a fresh start.
+            </h2>
+            <p>New availability will appear here.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% if rooms|length > 1 %}
+      <div class="carousel-footer">
+        <span class="carousel-caption">A place that feels like you</span>
+        <div class="carousel-dots" aria-label="Featured room slides">
+          {% for room in rooms %}
+            <button type="button"
+                    data-slide="{{ loop.index0 }}"
+                    aria-label="Show featured room {{ loop.index }}"
+                    aria-pressed="{{ 'true' if loop.first else 'false' }}"
+                    class="{{ 'selected' if loop.first }}"></button>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </section>
+  <div class="home-stats">
+    <div>
+      <span class="live-indicator"></span><strong>{{ available }}</strong><span>rooms available</span>
+    </div>
+    {% if min_rent is not none %}
+      <span class="stats-divider"></span>
+      <p>
+        From <strong>${{ '%.0f'|format(min_rent) }}</strong><small>/mo</small>
+      </p>
+    {% endif %}
+  </div>
+  <section class="quick-actions" aria-label="Quick actions">
+    <a href="{{ url_for('customer.rooms') }}"><span class="action-icon mint">{{ symbol("rooms") }}</span><strong>Find a room</strong></a><a href="{{ url_for('customer.rentals') }}#bills"><span class="action-icon apricot">{{ symbol("receipt") }}</span><strong>My bills</strong></a><a href="{{ url_for('customer.rentals') }}#utilities"><span class="action-icon lavender">{{ symbol("electric") }}</span><strong>Send readings</strong></a>
+  </section>
+  {% if customer_account and outstanding > 0 %}
+  <a class="home-alert" href="{{ url_for('customer.rentals') }}#bills"><span class="alert-symbol">{{ symbol("receipt") }}</span>
+  <div>
+    <strong>Your bills are ready</strong>
+    <p>${{ '%.2f'|format(outstanding) }} outstanding · View details</p>
+  </div>
+{{ symbol("arrow") }}</a>
+{% elif customer_account and pending_bookings %}
+<a class="home-alert" href="{{ url_for('customer.rentals') }}"><span class="alert-symbol">{{ symbol("rentals") }}</span>
+<div>
+  <strong>Your next move is in progress</strong>
+  <p>
+    {{ pending_bookings }} booking {{ 'request' if pending_bookings==1 else 'requests' }} awaiting confirmation
+  </p>
+</div>
+{{ symbol("arrow") }}</a>
+{% endif %}
+<section class="home-room-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">A SPACE TO CALL YOUR OWN</p>
+      <h2>Discover your next home</h2>
+    </div>
+    <a class="round-link"
+       href="{{ url_for('customer.rooms') }}"
+       aria-label="View all available rooms">{{ symbol("arrow") }}</a>
+  </div>
+  <div class="filter-chips">
+    <a class="selected" href="{{ url_for('customer.rooms') }}">All rooms <span>{{ available }}</span></a>
+    {% for type in room_types %}
+      <a href="{{ url_for('customer.rooms',type=type) }}">{{ type }}</a>
+    {% endfor %}
+  </div>
+  <div class="room-list home-room-rail">
+    {% for room in rooms %}
+      {% include 'customer/_room_card.html' %}
+    {% else %}
+      <div class="empty">All settled in for now. Check back for new spaces.</div>
+    {% endfor %}
+  </div>
+  <p class="swipe-hint">Swipe to explore more spaces {{ symbol("arrow") }}</p>
+</section>
+<section class="activity-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">
+        {% if customer_account %}
+          YOUR RESIDENT JOURNEY
+        {% else %}
+          FROM BROWSING TO BELONGING
+        {% endif %}
+      </p>
+      <h2>
+        {% if customer_account %}
+          Recent activity
+        {% else %}
+          Move in, in a few steps
+        {% endif %}
+      </h2>
+    </div>
+    <span class="activity-tag">{{ 'Updates' if customer_account else 'How it works' }}</span>
+  </div>
+  <div class="activity-feed">
+    {% if customer_account %}
+      {% for item in activity %}
+      <a class="activity-item" href="{{ item.href }}"><span class="activity-icon">{{ symbol(item.icon) }}</span>
+      <div class="activity-copy">
+        <div class="row">
+          <strong>{{ item.title }}</strong><time datetime="{{ item.date }}">{{ item.date.strftime("%d %b") }}</time>
+        </div>
+        <p>{{ item.detail }}</p>
+        <span class="activity-status">{{ item.status }}</span>
+      </div>
+    </a>
+  {% endfor %}
+{% else %}
+  {% for icon,title,detail in [('search','Find your space','Explore available rooms and compare the details.'),('rentals','Make your move','Request a booking with your preferred move-in date.'),('home','Settle into everyday','Manage your rental, bills and utilities in one place.')] %}
+    <div class="activity-item">
+      <span class="activity-icon">{{ symbol(icon) }}</span>
+      <div class="activity-copy">
+        <strong>{{ title }}</strong>
+        <p>{{ detail }}</p>
+      </div>
+      <span class="step-number">0{{ loop.index }}</span>
+    </div>
+  {% endfor %}
+{% endif %}
+</div>
+</section>
+{% if not customer_account %}
+  <section class="join-banner">
+    <span class="join-decoration">{{ symbol("home") }}</span>
+    <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+    <h2>
+      Your next chapter
+      <br>
+      is one tap away.
+    </h2>
+    <a class="button" href="{{ url_for('customer.register') }}">Create your account {{ symbol("arrow") }}</a>
+    <p>
+      Already here? <a href="{{ url_for('customer.login') }}">Sign in</a>
+    </p>
+  </section>
+{% endif %}
+<div class="quiet-note">
+  <span class="footer-wordmark">rpms.</span>Thoughtfully simple living.
+</div>
+{% endblock %}

@@ -1,0 +1,1219 @@
+{
+  "roles": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR(50) UQ",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "fk": null
+    }
+  ],
+  "users": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "role_id",
+      "type": "BIGINT FK",
+      "fk": "roles"
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "email",
+      "type": "VARCHAR(150) UQ",
+      "fk": null
+    },
+    {
+      "name": "password_hash",
+      "type": "VARCHAR(255)",
+      "fk": null
+    },
+    {
+      "name": "phone",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "is_active",
+      "type": "BOOLEAN",
+      "fk": null
+    },
+    {
+      "name": "last_login_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    }
+  ],
+  "permissions": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "code",
+      "type": "VARCHAR(100) UQ",
+      "fk": null
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "module",
+      "type": "VARCHAR(100)",
+      "fk": null
+    }
+  ],
+  "role_permissions": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "role_id",
+      "type": "BIGINT FK",
+      "fk": "roles"
+    },
+    {
+      "name": "permission_id",
+      "type": "BIGINT FK",
+      "fk": "permissions"
+    }
+  ],
+  "properties": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "property_code",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "property_type",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "address",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "city",
+      "type": "VARCHAR(100)",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "manager_id",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    }
+  ],
+  "floors": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "property_id",
+      "type": "BIGINT FK",
+      "fk": "properties"
+    },
+    {
+      "name": "floor_number",
+      "type": "INTEGER",
+      "fk": null
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR(50)",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "rooms": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "floor_id",
+      "type": "BIGINT FK",
+      "fk": "floors"
+    },
+    {
+      "name": "room_number",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "room_type",
+      "type": "VARCHAR(50)",
+      "fk": null
+    },
+    {
+      "name": "monthly_rent",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "default_deposit",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "size_sqm",
+      "type": "NUMERIC(10,2)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "tenants": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "tenant_code",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "full_name",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "gender",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "date_of_birth",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "phone",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "email",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "identity_type",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "identity_number",
+      "type": "VARCHAR(100)",
+      "fk": null
+    },
+    {
+      "name": "identity_document_path",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "emergency_contact_name",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "emergency_contact_phone",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "address",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    }
+  ],
+  "reservations": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "reservation_no",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "room_id",
+      "type": "BIGINT FK",
+      "fk": "rooms"
+    },
+    {
+      "name": "tenant_id",
+      "type": "BIGINT FK",
+      "fk": "tenants"
+    },
+    {
+      "name": "reservation_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "expected_move_in",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "expected_move_out",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "reservation_fee",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "expires_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    }
+  ],
+  "rental_contracts": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "contract_no",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "room_id",
+      "type": "BIGINT FK",
+      "fk": "rooms"
+    },
+    {
+      "name": "reservation_id",
+      "type": "BIGINT FK",
+      "fk": "reservations"
+    },
+    {
+      "name": "start_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "end_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "monthly_rent",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "deposit_required",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "billing_day",
+      "type": "SMALLINT",
+      "fk": null
+    },
+    {
+      "name": "payment_due_day",
+      "type": "SMALLINT",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "terms",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "signed_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    }
+  ],
+  "contract_tenants": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "tenant_id",
+      "type": "BIGINT FK",
+      "fk": "tenants"
+    },
+    {
+      "name": "is_primary",
+      "type": "BOOLEAN",
+      "fk": null
+    },
+    {
+      "name": "joined_at",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "left_at",
+      "type": "DATE",
+      "fk": null
+    }
+  ],
+  "deposits": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "required_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "held_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "received_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "room_inspections": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "room_id",
+      "type": "BIGINT FK",
+      "fk": "rooms"
+    },
+    {
+      "name": "inspection_type",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "inspection_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "condition_notes",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "damage_notes",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "photo_paths",
+      "type": "JSONB",
+      "fk": null
+    },
+    {
+      "name": "key_count",
+      "type": "INTEGER",
+      "fk": null
+    },
+    {
+      "name": "inspected_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    }
+  ],
+  "move_outs": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "inspection_id",
+      "type": "BIGINT FK",
+      "fk": "room_inspections"
+    },
+    {
+      "name": "notice_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "move_out_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "outstanding_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "damage_deduction",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "other_deduction",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "refund_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "deposit_transactions": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "deposit_id",
+      "type": "BIGINT FK",
+      "fk": "deposits"
+    },
+    {
+      "name": "move_out_id",
+      "type": "BIGINT FK",
+      "fk": "move_outs"
+    },
+    {
+      "name": "transaction_type",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "payment_method",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "reference_no",
+      "type": "VARCHAR(100)",
+      "fk": null
+    },
+    {
+      "name": "transaction_date",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "utility_meters": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "room_id",
+      "type": "BIGINT FK",
+      "fk": "rooms"
+    },
+    {
+      "name": "meter_type",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "meter_number",
+      "type": "VARCHAR(50)",
+      "fk": null
+    },
+    {
+      "name": "unit",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "default_rate",
+      "type": "NUMERIC(12,4)",
+      "fk": null
+    },
+    {
+      "name": "installed_at",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    }
+  ],
+  "meter_readings": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "meter_id",
+      "type": "BIGINT FK",
+      "fk": "utility_meters"
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "reading_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "previous_reading",
+      "type": "NUMERIC(14,3)",
+      "fk": null
+    },
+    {
+      "name": "current_reading",
+      "type": "NUMERIC(14,3)",
+      "fk": null
+    },
+    {
+      "name": "usage_quantity",
+      "type": "NUMERIC(14,3)",
+      "fk": null
+    },
+    {
+      "name": "unit_rate",
+      "type": "NUMERIC(12,4)",
+      "fk": null
+    },
+    {
+      "name": "total_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "reading_type",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "photo_path",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "recorded_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    }
+  ],
+  "invoices": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "invoice_no",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "billing_period",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "invoice_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "due_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "subtotal",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "adjustment_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "total_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "paid_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "balance_due",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "created_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    }
+  ],
+  "invoice_items": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "invoice_id",
+      "type": "BIGINT FK",
+      "fk": "invoices"
+    },
+    {
+      "name": "meter_reading_id",
+      "type": "BIGINT FK",
+      "fk": "meter_readings"
+    },
+    {
+      "name": "item_type",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "VARCHAR(255)",
+      "fk": null
+    },
+    {
+      "name": "quantity",
+      "type": "NUMERIC(12,3)",
+      "fk": null
+    },
+    {
+      "name": "unit_price",
+      "type": "NUMERIC(12,4)",
+      "fk": null
+    },
+    {
+      "name": "amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    }
+  ],
+  "payments": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "payment_no",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "tenant_id",
+      "type": "BIGINT FK",
+      "fk": "tenants"
+    },
+    {
+      "name": "payment_date",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "payment_method",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "reference_no",
+      "type": "VARCHAR(100)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "received_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "payment_allocations": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "payment_id",
+      "type": "BIGINT FK",
+      "fk": "payments"
+    },
+    {
+      "name": "invoice_id",
+      "type": "BIGINT FK",
+      "fk": "invoices"
+    },
+    {
+      "name": "allocated_amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "allocated_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    }
+  ],
+  "maintenance_requests": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "request_no",
+      "type": "VARCHAR(30) UQ",
+      "fk": null
+    },
+    {
+      "name": "room_id",
+      "type": "BIGINT FK",
+      "fk": "rooms"
+    },
+    {
+      "name": "tenant_id",
+      "type": "BIGINT FK",
+      "fk": "tenants"
+    },
+    {
+      "name": "title",
+      "type": "VARCHAR(150)",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "priority",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "assigned_to",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "reported_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "completed_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    },
+    {
+      "name": "resolution_notes",
+      "type": "TEXT",
+      "fk": null
+    }
+  ],
+  "expenses": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "property_id",
+      "type": "BIGINT FK",
+      "fk": "properties"
+    },
+    {
+      "name": "maintenance_request_id",
+      "type": "BIGINT FK",
+      "fk": "maintenance_requests"
+    },
+    {
+      "name": "category",
+      "type": "VARCHAR(50)",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "amount",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "expense_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "payment_method",
+      "type": "VARCHAR(30)",
+      "fk": null
+    },
+    {
+      "name": "receipt_path",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "recorded_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    }
+  ],
+  "audit_logs": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "user_id",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "action",
+      "type": "VARCHAR(50)",
+      "fk": null
+    },
+    {
+      "name": "table_name",
+      "type": "VARCHAR(100)",
+      "fk": null
+    },
+    {
+      "name": "record_id",
+      "type": "BIGINT",
+      "fk": null
+    },
+    {
+      "name": "old_values",
+      "type": "JSONB",
+      "fk": null
+    },
+    {
+      "name": "new_values",
+      "type": "JSONB",
+      "fk": null
+    },
+    {
+      "name": "ip_address",
+      "type": "VARCHAR(45)",
+      "fk": null
+    },
+    {
+      "name": "created_at",
+      "type": "TIMESTAMPTZ",
+      "fk": null
+    }
+  ],
+  "system_settings": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "setting_key",
+      "type": "VARCHAR(100) UQ",
+      "fk": null
+    },
+    {
+      "name": "setting_value",
+      "type": "JSONB",
+      "fk": null
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "fk": null
+    },
+    {
+      "name": "updated_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    }
+  ],
+  "contract_renewals": [
+    {
+      "name": "id",
+      "type": "BIGINT PK",
+      "fk": null
+    },
+    {
+      "name": "contract_id",
+      "type": "BIGINT FK",
+      "fk": "rental_contracts"
+    },
+    {
+      "name": "previous_end_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "new_end_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "previous_rent",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "new_rent",
+      "type": "NUMERIC(12,2)",
+      "fk": null
+    },
+    {
+      "name": "renewal_date",
+      "type": "DATE",
+      "fk": null
+    },
+    {
+      "name": "status",
+      "type": "VARCHAR(20)",
+      "fk": null
+    },
+    {
+      "name": "approved_by",
+      "type": "BIGINT FK",
+      "fk": "users"
+    },
+    {
+      "name": "notes",
+      "type": "TEXT",
+      "fk": null
+    }
+  ]
+}

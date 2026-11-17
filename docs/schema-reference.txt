@@ -1,0 +1,964 @@
+RPMS | Python + PostgreSQL schema
+Page 1
+RENTAL PROPERTY MANAGEMENT
+SYSTEM
+Python / Flask + PostgreSQL Database Schema and Development Guide
+Based on: RPMS_Proposal_Khmer_Updated_Flask_React.pdf (7 pages). The source proposal outlines the modules and 21
+named tables; this document expands the columns and adds five recommended supporting tables.
+PROJECT SUMMARY
+Scope: Property setup, reservations, tenants, rental contracts, deposits, move-in inspections, utility meters, monthly
+invoices, partial payments, maintenance, renewals, move-outs and refunds.
+Management layers: TPS for transactions, MIS for occupancy/revenue/outstanding reporting, and DSS for price
+simulations and forecasting.
+Python-focused adaptation: Flask + Jinja2 templates + SQLAlchemy + PostgreSQL. The original proposal instead
+specifies React/Vite for frontend; replacing it with Jinja2 is a recommendation to reduce separate JavaScript application
+development.
+SCHEMA AT A GLANCE
+Module
+Tables
+User Management
+roles, users, permissions, role_permissions
+Property & Rooms
+properties, floors, rooms
+Tenants & Reservations
+tenants, reservations
+Contracts
+rental_contracts, contract_tenants
+Deposits, Inspections & Move-outs
+deposits, room_inspections, move_outs, deposit_transactions
+Utilities
+utility_meters, meter_readings
+Billing
+invoices, invoice_items
+Payments
+payments, payment_allocations
+Maintenance & Expenses
+maintenance_requests, expenses
+System & Renewal
+audit_logs, system_settings, contract_renewals
+26 tables total = 21 tables named in the proposal + 5 additional tables (permissions, role_permissions,
+system_settings, contract_renewals, deposit_transactions).
+
+RPMS | Python + PostgreSQL schema
+Page 2
+DATABASE TABLES & COLUMNS
+PK = Primary Key; FK = Foreign Key; UQ = Unique. Use created_at and updated_at on mutable records unless a
+transaction/audit table has its own timestamp. These are proposed column specifications, not a schema explicitly
+supplied in the source PDF.
+User Management
+roles
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Role ID
+name
+VARCHAR(50) UQ
+Admin, Manager, Cashier, Receptionist, Maintenance
+description
+TEXT
+Role description
+is_active
+BOOLEAN
+Active status
+users
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+User ID
+role_id
+BIGINT FK
+roles.id
+name
+VARCHAR(150)
+Full name
+email
+VARCHAR(150) UQ
+Login email
+password_hash
+VARCHAR(255)
+Secure password hash
+phone
+VARCHAR(30)
+Phone
+is_active
+BOOLEAN
+Account enabled
+last_login_at
+TIMESTAMPTZ
+Last login
+permissions
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Permission ID
+code
+VARCHAR(100) UQ
+e.g. invoice.create
+name
+VARCHAR(150)
+Display name
+module
+VARCHAR(100)
+Feature module
+role_permissions
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Record ID
+role_id
+BIGINT FK
+roles.id
+permission_id
+BIGINT FK
+permissions.id
+Property & Rooms
+properties
+
+RPMS | Python + PostgreSQL schema
+Page 3
+Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Property ID
+property_code
+VARCHAR(30) UQ
+e.g. PROP001
+name
+VARCHAR(150)
+Property name
+property_type
+VARCHAR(30)
+House, Apartment, Condo, Building
+address
+TEXT
+Full address
+city
+VARCHAR(100)
+City
+description
+TEXT
+Notes
+manager_id
+BIGINT FK
+users.id; nullable
+status
+VARCHAR(20)
+Active, Inactive
+floors
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Floor ID
+property_id
+BIGINT FK
+properties.id
+floor_number
+INTEGER
+Floor number
+name
+VARCHAR(50)
+Floor label
+description
+TEXT
+Notes
+rooms
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Room ID
+floor_id
+BIGINT FK
+floors.id
+room_number
+VARCHAR(30)
+e.g. A101
+room_type
+VARCHAR(50)
+Studio, Standard, One Bedroom
+monthly_rent
+NUMERIC(12,2)
+Default monthly rent
+default_deposit
+NUMERIC(12,2)
+Default deposit
+size_sqm
+NUMERIC(10,2)
+Area
+status
+VARCHAR(20)
+Vacant, Reserved, Occupied, Maintenance
+description
+TEXT
+Notes
+Tenants & Reservations
+tenants
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Tenant ID
+tenant_code
+VARCHAR(30) UQ
+e.g. TEN001
+full_name
+VARCHAR(150)
+Tenant name
+gender
+VARCHAR(20)
+Optional
+date_of_birth
+DATE
+Optional
+
+RPMS | Python + PostgreSQL schema
+Page 4
+Column
+PostgreSQL type
+Purpose / reference
+phone
+VARCHAR(30)
+Contact
+email
+VARCHAR(150)
+Optional
+identity_type
+VARCHAR(30)
+National ID, Passport
+identity_number
+VARCHAR(100)
+Sensitive: protect
+identity_document_path
+TEXT
+Protected file path
+emergency_contact_name
+VARCHAR(150)
+Emergency contact
+emergency_contact_phone
+VARCHAR(30)
+Emergency phone
+address
+TEXT
+Address
+status
+VARCHAR(20)
+Active, Inactive
+reservations
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Reservation ID
+reservation_no
+VARCHAR(30) UQ
+Reservation number
+room_id
+BIGINT FK
+rooms.id
+tenant_id
+BIGINT FK
+tenants.id
+reservation_date
+DATE
+Booking date
+expected_move_in
+DATE
+Planned move-in
+expected_move_out
+DATE
+Planned move-out; optional
+reservation_fee
+NUMERIC(12,2)
+Booking fee
+status
+VARCHAR(20)
+Pending, Confirmed, Cancelled, Converted, Expired
+expires_at
+TIMESTAMPTZ
+Hold expiration
+notes
+TEXT
+Remarks
+created_by
+BIGINT FK
+users.id
+Contracts
+rental_contracts
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Contract ID
+contract_no
+VARCHAR(30) UQ
+Contract number
+room_id
+BIGINT FK
+rooms.id
+reservation_id
+BIGINT FK
+reservations.id; nullable
+start_date
+DATE
+Lease start
+end_date
+DATE
+Lease end
+monthly_rent
+NUMERIC(12,2)
+Agreed rent; historical snapshot
+deposit_required
+NUMERIC(12,2)
+Required deposit
+billing_day
+SMALLINT
+Billing day: 1-28
+payment_due_day
+SMALLINT
+Due day: 1-28
+
+RPMS | Python + PostgreSQL schema
+Page 5
+Column
+PostgreSQL type
+Purpose / reference
+status
+VARCHAR(20)
+Draft, Active, Expired, Terminated
+terms
+TEXT
+Lease terms
+signed_at
+TIMESTAMPTZ
+Signature date
+created_by
+BIGINT FK
+users.id
+contract_tenants
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Record ID
+contract_id
+BIGINT FK
+rental_contracts.id
+tenant_id
+BIGINT FK
+tenants.id
+is_primary
+BOOLEAN
+Primary tenant
+joined_at
+DATE
+Date joined
+left_at
+DATE
+Date left; nullable
+Deposits, Inspections & Move-outs
+deposits
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Deposit ID
+contract_id
+BIGINT FK
+rental_contracts.id
+required_amount
+NUMERIC(12,2)
+Expected deposit
+held_amount
+NUMERIC(12,2)
+Current held balance
+status
+VARCHAR(30)
+Pending, Held, Partially Refunded, Refunded, Closed
+received_at
+TIMESTAMPTZ
+Receipt date
+notes
+TEXT
+Notes
+room_inspections
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Inspection ID
+contract_id
+BIGINT FK
+rental_contracts.id
+room_id
+BIGINT FK
+rooms.id
+inspection_type
+VARCHAR(20)
+Move-in, Move-out, Routine
+inspection_date
+DATE
+Inspection date
+condition_notes
+TEXT
+Room condition
+damage_notes
+TEXT
+Damage record
+photo_paths
+JSONB
+Array of protected photo paths
+key_count
+INTEGER
+Keys delivered/returned
+inspected_by
+BIGINT FK
+users.id
+status
+VARCHAR(20)
+Draft, Completed
+
+RPMS | Python + PostgreSQL schema
+Page 6
+move_outs
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Move-out ID
+contract_id
+BIGINT FK
+rental_contracts.id
+inspection_id
+BIGINT FK
+room_inspections.id
+notice_date
+DATE
+Notice date
+move_out_date
+DATE
+Actual vacate date
+outstanding_amount
+NUMERIC(12,2)
+Open invoice balance snapshot
+damage_deduction
+NUMERIC(12,2)
+Damage deduction
+other_deduction
+NUMERIC(12,2)
+Other deduction
+refund_amount
+NUMERIC(12,2)
+Approved refund
+status
+VARCHAR(20)
+Pending, Approved, Completed
+approved_by
+BIGINT FK
+users.id
+notes
+TEXT
+Settlement notes
+deposit_transactions
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Transaction ID
+deposit_id
+BIGINT FK
+deposits.id
+move_out_id
+BIGINT FK
+move_outs.id; nullable
+transaction_type
+VARCHAR(20)
+Received, Deduction, Refund, Adjustment, Reversal
+amount
+NUMERIC(12,2)
+Positive transaction amount
+payment_method
+VARCHAR(30)
+Cash, Transfer, KHQR
+reference_no
+VARCHAR(100)
+Evidence reference
+transaction_date
+TIMESTAMPTZ
+Timestamp
+approved_by
+BIGINT FK
+users.id; nullable
+notes
+TEXT
+Reason/evidence
+Utilities
+utility_meters
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Meter ID
+room_id
+BIGINT FK
+rooms.id
+meter_type
+VARCHAR(20)
+Water, Electricity
+meter_number
+VARCHAR(50)
+Physical meter ID
+unit
+VARCHAR(20)
+kWh, m3
+default_rate
+NUMERIC(12,4)
+Default cost per unit
+installed_at
+DATE
+Installed date
+status
+VARCHAR(20)
+Active, Replaced, Inactive
+
+RPMS | Python + PostgreSQL schema
+Page 7
+meter_readings
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Reading ID
+meter_id
+BIGINT FK
+utility_meters.id
+contract_id
+BIGINT FK
+rental_contracts.id
+reading_date
+DATE
+Date
+previous_reading
+NUMERIC(14,3)
+Earlier reading
+current_reading
+NUMERIC(14,3)
+Latest reading
+usage_quantity
+NUMERIC(14,3)
+Current minus previous, or approved replacement rule
+unit_rate
+NUMERIC(12,4)
+Rate snapshot
+total_amount
+NUMERIC(12,2)
+Billed utility cost
+reading_type
+VARCHAR(20)
+Regular, Move-in, Move-out, Replacement
+photo_path
+TEXT
+Reading evidence
+recorded_by
+BIGINT FK
+users.id
+status
+VARCHAR(20)
+Draft, Approved, Billed
+Billing
+invoices
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Invoice ID
+invoice_no
+VARCHAR(30) UQ
+Invoice number
+contract_id
+BIGINT FK
+rental_contracts.id
+billing_period
+DATE
+First day of billing month
+invoice_date
+DATE
+Issue date
+due_date
+DATE
+Payment deadline
+subtotal
+NUMERIC(12,2)
+Sum of line amounts
+adjustment_amount
+NUMERIC(12,2)
+Signed invoice adjustment
+total_amount
+NUMERIC(12,2)
+Final amount
+paid_amount
+NUMERIC(12,2)
+Confirmed allocated payments
+balance_due
+NUMERIC(12,2)
+Outstanding amount
+status
+VARCHAR(20)
+Draft, Issued, Partial, Paid, Overdue, Voided
+notes
+TEXT
+Remarks
+created_by
+BIGINT FK
+users.id
+invoice_items
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Item ID
+invoice_id
+BIGINT FK
+invoices.id
+meter_reading_id
+BIGINT FK
+meter_readings.id; nullable
+
+RPMS | Python + PostgreSQL schema
+Page 8
+Column
+PostgreSQL type
+Purpose / reference
+item_type
+VARCHAR(30)
+Rent, Water, Electricity, Service, Adjustment
+description
+VARCHAR(255)
+Line description
+quantity
+NUMERIC(12,3)
+Quantity
+unit_price
+NUMERIC(12,4)
+Unit price snapshot
+amount
+NUMERIC(12,2)
+Line total
+Payments
+payments
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Payment ID
+payment_no
+VARCHAR(30) UQ
+Payment number
+tenant_id
+BIGINT FK
+tenants.id
+payment_date
+TIMESTAMPTZ
+Payment date
+amount
+NUMERIC(12,2)
+Payment amount
+payment_method
+VARCHAR(30)
+Cash, Transfer, KHQR
+reference_no
+VARCHAR(100)
+Bank/receipt reference
+status
+VARCHAR(20)
+Pending, Confirmed, Failed, Reversed
+received_by
+BIGINT FK
+users.id
+notes
+TEXT
+Remarks
+payment_allocations
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Allocation ID
+payment_id
+BIGINT FK
+payments.id
+invoice_id
+BIGINT FK
+invoices.id
+allocated_amount
+NUMERIC(12,2)
+Applied amount
+allocated_at
+TIMESTAMPTZ
+Allocation timestamp
+Maintenance & Expenses
+maintenance_requests
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Request ID
+request_no
+VARCHAR(30) UQ
+Request number
+room_id
+BIGINT FK
+rooms.id
+tenant_id
+BIGINT FK
+tenants.id; nullable
+title
+VARCHAR(150)
+Issue title
+
+RPMS | Python + PostgreSQL schema
+Page 9
+Column
+PostgreSQL type
+Purpose / reference
+description
+TEXT
+Problem details
+priority
+VARCHAR(20)
+Low, Medium, High, Urgent
+status
+VARCHAR(30)
+Pending, Assigned, In Progress, Completed, Cancelled
+assigned_to
+BIGINT FK
+users.id; nullable
+reported_at
+TIMESTAMPTZ
+Reported date
+completed_at
+TIMESTAMPTZ
+Resolved date
+resolution_notes
+TEXT
+Fix details
+expenses
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Expense ID
+property_id
+BIGINT FK
+properties.id
+maintenance_request_id
+BIGINT FK
+maintenance_requests.id; nullable
+category
+VARCHAR(50)
+Repair, Utilities, Cleaning, Other
+description
+TEXT
+Explanation
+amount
+NUMERIC(12,2)
+Cost
+expense_date
+DATE
+Expense date
+payment_method
+VARCHAR(30)
+Cash, Transfer
+receipt_path
+TEXT
+Evidence location
+recorded_by
+BIGINT FK
+users.id
+status
+VARCHAR(20)
+Pending, Approved, Paid
+System & Renewal
+audit_logs
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Log ID
+user_id
+BIGINT FK
+users.id; nullable
+action
+VARCHAR(50)
+Create, Update, Delete, Approve, Reverse
+table_name
+VARCHAR(100)
+Affected table
+record_id
+BIGINT
+Affected record ID
+old_values
+JSONB
+Before snapshot
+new_values
+JSONB
+After snapshot
+ip_address
+VARCHAR(45)
+Request IP
+created_at
+TIMESTAMPTZ
+Action timestamp
+system_settings
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Setting ID
+
+RPMS | Python + PostgreSQL schema
+Page 10
+Column
+PostgreSQL type
+Purpose / reference
+setting_key
+VARCHAR(100) UQ
+Configuration key
+setting_value
+JSONB
+Configuration value
+description
+TEXT
+Setting meaning
+updated_by
+BIGINT FK
+users.id
+contract_renewals
+ Column
+PostgreSQL type
+Purpose / reference
+id
+BIGINT PK
+Renewal ID
+contract_id
+BIGINT FK
+rental_contracts.id
+previous_end_date
+DATE
+Prior expiry
+new_end_date
+DATE
+New expiry
+previous_rent
+NUMERIC(12,2)
+Old rent
+new_rent
+NUMERIC(12,2)
+New rent
+renewal_date
+DATE
+Renewal date
+status
+VARCHAR(20)
+Pending, Approved, Rejected
+approved_by
+BIGINT FK
+users.id; nullable
+notes
+TEXT
+Remarks
+DATABASE RELATIONSHIPS
+• properties 1:N floors; floors 1:N rooms; rooms 1:N reservations and rental_contracts over time.
+• rental_contracts N:M tenants via contract_tenants; rental_contracts 1:N invoices; invoices 1:N invoice_items.
+• payments N:M invoices via payment_allocations; rooms 1:N utility_meters; utility_meters 1:N meter_readings.
+• rental_contracts 1:N room_inspections and contract_renewals; rental_contracts 1:1 or 1:N deposits according to
+deposit policy; deposits 1:N deposit_transactions.
+• users N:1 roles; roles N:M permissions via role_permissions.
+KEY CONSTRAINTS & BUSINESS RULES
+• Prevent overlapping active lease periods and conflicting confirmed room reservations. Use a PostgreSQL exclusion
+constraint or transaction-safe conflict check.
+• Unique room identifiers per floor: (floor_id, room_number). Unique floor numbers per property: (property_id,
+floor_number).
+• Unique contract_tenants pair (contract_id, tenant_id) and role_permissions pair (role_id, permission_id).
+• For monthly invoices, prevent duplicate non-voided invoices for the same contract and month (partial unique index).
+• Disallow meter readings below the preceding reading except an explicitly approved meter replacement.
+• Snapshot unit rates on meter_readings and agreed rent on contracts/invoice items to preserve historic billing.
+• Allocate only confirmed payments; allocation totals may not exceed confirmed payment amount or invoice due,
+unless a separately defined credit workflow exists.
+• Manage deposit funds separately from recognized rental income. Track approvals and document refunds/deductions.
+
+RPMS | Python + PostgreSQL schema
+Page 11
+• Use NUMERIC in PostgreSQL and Decimal in Python for all currency calculations. Use transactions for payment
+confirmation, allocations and refund settlement.
+• Never hard-delete confirmed financial records. Prefer reversal entries and audit trails; restrict tenant ID documents
+and private photos.
+MONTHLY INVOICE EXAMPLE (FROM PROPOSAL, PAGE 3)
+Item
+Calculation
+USD
+Rent
+Fixed
+150.00
+Electricity
+(1,350 - 1,200) x 0.25
+37.50
+Water
+(90 - 80) x 0.50
+5.00
+Other services
+Fixed
+10.00
+Invoice total
+202.50
+Partial payment
+100.00
+Remaining balance
+102.50
+PYTHON TECHNOLOGY STACK
+• Python 3 + Flask: application server, routes, Blueprints and business services.
+• Jinja2 + HTML/CSS/Bootstrap: Python-friendly server-rendered frontend (adaptation from original React proposal).
+• PostgreSQL + SQLAlchemy + Flask-Migrate: relational data, ORM and database migrations.
+• Flask-Login (or equivalent) + RBAC: authentication and granular roles/permissions.
+• Pandas/NumPy + Plotly/Chart.js: MIS/DSS calculations, trends, simulation and charts.
+• Pytest + Docker Compose + Nginx: tests, containerized deployment and HTTPS reverse proxy.
+IMPLEMENTATION PHASES
+1. Analysis and schema: Requirements, ERD, SQLAlchemy models, migrations, login and roles.
+2. Core management: Property/floor/room, tenant, reservation, contract and deposit.
+3. Billing and operations: Inspections, utilities, invoice generation, payment allocation, maintenance, renewals and
+move-out.
+4. Intelligence and deployment: MIS dashboard, DSS pricing simulator, forecast, tests, Docker/Nginx, backup and
+restore.
+Design note: This is a proposed development schema derived from the uploaded RPMS proposal; not every column
+above appears in the original document. Validate approval flows, local rental rules, financial accounting, and security
+requirements before production use.
