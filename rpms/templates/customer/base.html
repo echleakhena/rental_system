@@ -47,6 +47,7 @@
       </svg>
     {% endmacro %}
     <div class="mobile-shell">
+      {% include 'demo_notice.html' %}
       <header class="topbar">
         <a class="brand" href="{{ url_for('customer.home') }}"><span class="brand-mark">{{ symbol("home") }}</span>rpms<span class="brand-dot">.</span></a><a class="avatar"
    href="{{ url_for('customer.profile') if customer_account else url_for('customer.login') }}"

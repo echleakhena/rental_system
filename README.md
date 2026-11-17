@@ -1,6 +1,9 @@
 # RPMS — Rental Property Management System
 
 A Python/Flask rental management application with Jinja templates, SQLAlchemy and SQLite.
+
+For a hosted sample-data demo, follow [Vercel deployment](docs/vercel-demo.md).
+The Vercel configuration uses disposable sample records and excludes your local database.
 ## Start the existing project
 ```sh
 .venv/bin/python app.py

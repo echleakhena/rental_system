@@ -2,6 +2,7 @@
 
 import os
 import secrets
+import tempfile
 from pathlib import Path
 
 from flask import Flask
@@ -21,22 +22,33 @@ def sqlite_integrity(connection, _):
 
 def create_app(config=None):
     """Create an app, optionally overriding settings for isolated tests."""
-    app = Flask(__name__, instance_relative_config=True)
+    demo = os.environ.get("RPMS_DEMO") == "1"
+    if demo:
+        password = os.environ.get("RPMS_DEMO_PASSWORD", "")
+        if len(password) < 10:
+            raise ValueError("Set RPMS_DEMO_PASSWORD to at least 10 characters.")
+        if not os.environ.get("SECRET_KEY") and not (config or {}).get("SECRET_KEY"):
+            raise ValueError("Set a persistent SECRET_KEY for the demo.")
+    instance_path = tempfile.mkdtemp(prefix="rpms-demo-") if demo else None
+    app = Flask(__name__, instance_relative_config=True, instance_path=instance_path)
     Path(app.instance_path).mkdir(exist_ok=True)
     production = os.environ.get("RPMS_ENV", "development") == "production"
     app.config.update(
         SECRET_KEY=os.environ.get("SECRET_KEY"),
+        DEMO_MODE=demo,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         TEMPLATES_AUTO_RELOAD=not production,
         SESSION_COOKIE_SECURE=production,
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
-        MAX_CONTENT_LENGTH=22 * 1024 * 1024,
+        MAX_CONTENT_LENGTH=(4 if demo else 22) * 1024 * 1024,
     )
     if config:
         app.config.update(config)
     if not app.config.get("SQLALCHEMY_DATABASE_URI"):
-        app.config["SQLALCHEMY_DATABASE_URI"] = database_uri(app.instance_path)
+        app.config["SQLALCHEMY_DATABASE_URI"] = (
+            "sqlite:///demo.db" if demo else database_uri(app.instance_path)
+        )
     if not app.config.get("SECRET_KEY"):
         if production:
             raise ValueError("Set SECRET_KEY before starting RPMS in production.")
@@ -64,4 +76,8 @@ def create_app(config=None):
     from .seed import register_commands
 
     register_commands(app)
+    if demo:
+        from .demo import initialize_demo
+
+        initialize_demo(app, password)
     return app
